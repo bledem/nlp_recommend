@@ -1,4 +1,4 @@
 from .utils import *
-from .model_deployment import *
+from .models import *
 from .const import *
 from .settings import *

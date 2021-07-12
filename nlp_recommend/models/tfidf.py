@@ -7,7 +7,7 @@ import os
 from nltk.corpus import stopwords
 
 from nlp_recommend.utils.clean_data import tokenizer
-from nlp_recommend.model_deployment.models.base import BaseModel
+from nlp_recommend.models.base import BaseModel
 from nlp_recommend.settings import TOPK
 from nlp_recommend.const import PARENT_DIR
 

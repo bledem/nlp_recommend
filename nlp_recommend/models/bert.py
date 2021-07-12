@@ -6,7 +6,7 @@ import os
 import numpy as np
 from tqdm import tqdm
 
-from nlp_recommend.model_deployment.models.base import BaseModel
+from nlp_recommend.models.base import BaseModel
 from nlp_recommend.settings import TOPK, BERT_MODEL
 from nlp_recommend.const import PARENT_DIR
 

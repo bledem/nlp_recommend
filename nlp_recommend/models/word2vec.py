@@ -4,7 +4,7 @@ import numpy as np
 import os
 import pickle
 
-from nlp_recommend.model_deployment.models.base import BaseModel
+from nlp_recommend.models.base import BaseModel
 from nlp_recommend.settings import TOPK
 from nlp_recommend.const import PARENT_DIR
 
@@ -17,7 +17,7 @@ class Word2VecModel(BaseModel):
     def __init__(self, data=None):
         super().__init__(name='Word2Vec')
         self.load()
-        if not hasattr(self, 'embed_mat') or not hasattr(self, 'model'):
+        if not hasattr(self, 'dataset') or not hasattr(self, 'model'):
             assert data is not None, 'No cache data found, add data argument'
             self.fit_transform(data)
 

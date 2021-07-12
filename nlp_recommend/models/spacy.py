@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pickle
 
-from nlp_recommend.model_deployment.models.base import BaseModel
+from nlp_recommend.models.base import BaseModel
 from nlp_recommend.const import PARENT_DIR
 
 MAT_PATH = os.path.join(PARENT_DIR, 'weights/spacy_mat.pkl')

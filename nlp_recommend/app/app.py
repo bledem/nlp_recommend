@@ -1,11 +1,11 @@
-from flask import Flask, request, render_template 
+from models.tfidf import TfidModel
+from flask import Flask, request, render_template
 from flask import redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 
 import sys
 sys.path.insert(0, '/home/bettyld/PJ/Documents/NLP_PJ/philo')
 
-from model_deployment.tfidf import TfidModel
 
 LAST_N_SEARCH = 20
 
@@ -14,6 +14,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 db = SQLAlchemy(app)
 #  db.create_all()
+
 
 class InputAnswer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -35,18 +36,22 @@ class InputAnswer(db.Model):
 #     text = request.form['thoughts']
 #     db[user] = text
 #     # do something with your text
+
     def __repr__(self):
         return f'{self.user}: {self.input} - {self.answer}'
 
+
 model = TfidModel()
+
 
 def update_history():
     searchs = InputAnswer.query.all()
-    history = [{'author':s.author,
-                'user':s.user,
+    history = [{'author': s.author,
+                'user': s.user,
                 'input': s.input,
-                'answer':s.answer} for s in searchs[-LAST_N_SEARCH:]]
+                'answer': s.answer} for s in searchs[-LAST_N_SEARCH:]]
     return history
+
 
 @app.route('/')
 def home():
@@ -68,7 +73,7 @@ def home():
 #     # do something with your text
 #     # return redirect(url_for('success', name=user))
 #     return render_template('index.html', waiting='Looking for a match...')
- 
+
 
 # @app.route('/success/<name>')
 # def success(name):
@@ -89,7 +94,7 @@ def predict():
     # Receive
     user = request.form['fname']
     text = request.form['thoughts']
-    user= str(user).capitalize()
+    user = str(user).capitalize()
     # Predict
     best_res = model.test_sentence(text)[0]
     quote, author = best_res[0], best_res[1]

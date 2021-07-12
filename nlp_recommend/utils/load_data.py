@@ -2,6 +2,7 @@ from torch.utils.data import Dataset
 from nlp_recommend.const import DATA_PATH
 from nlp_recommend.utils.clean_data import clean_text, tokenizer
 from nlp_recommend.settings import MAX_CHAR_PER_ROW
+from nlp_recommend.models import SentimentCls
 from functools import partial
 import random
 import numpy as np
@@ -24,11 +25,16 @@ def apply_voc(vocab, char):
 class LoadData:
     """An iterator to load the philo corpus"""
 
-    def __init__(self, n_max=None, random=False, char_max=None, remove_numbered_rows=True):
+    def __init__(self, n_max=None,
+                 random=False,
+                 char_max=None,
+                 remove_numbered_rows=True,
+                 remove_person_row=True):
         self.n_max = n_max  # maximum number of row
         self.random = random
         self.char_max = char_max if char_max else MAX_CHAR_PER_ROW
         self.remove_numbered_row = remove_numbered_rows
+        self.remove_person_row = remove_person_row
 
     def load(self, tokenize=True, lemmatize=True):
         self.tokenize = tokenize
@@ -39,7 +45,7 @@ class LoadData:
 
     def load_data(self):
         df = self.load_philo()
-        df = self.clean_corpus(df)
+        df = self.clean_sentences(df)
         df = df.reset_index()
         return df
 
@@ -47,13 +53,19 @@ class LoadData:
         df = pd.read_csv(data_path)
         if self.random:
             df = df.sample(frac=1)
-        if self.remove_numbered_row:
-            df = self.remove_numbers(df)
         if self.n_max:
             df = df.iloc[:self.n_max]
+        df = self.clean_corpus(df)
         return df
 
     def clean_corpus(self, df):
+        if self.remove_numbered_row:
+            df = self.remove_numbers(df)
+        if self.remove_person_row:
+            df = self.remove_person(df)
+        return df
+
+    def clean_sentences(self, df):
         df['clean_sentence'] = df['sentence'].apply(clean_text)
         df['clean_sentence'] = df['clean_sentence'].apply(
             lambda x: re.sub('[^A-Za-z0-9]+', ' ', x))
@@ -67,6 +79,9 @@ class LoadData:
         index_to_remove = [idx for idx, row in df.iterrows(
         ) if re.findall(r'[0-9]', row.sentence)]
         df.drop(index=index_to_remove, inplace=True)
+        return df
+
+    def remove_person(self, df):
         return df
 
 
