@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> The mind and the monkey</title>
+    <link rel="stylesheet" type="text/css" href="../static/css/style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+            <ul>
+                <li> <a href="#"> Home </a></li>
+                <li> <a href="#"> Text Search </a></li>
+                <li> <a href="#"> Image Search  </a></li>
+                <li> <a href="#"> Contact </a></li>
+            </ul>
+
+    
+    </nav> 
+
+    
+
+    <section id="showcase">
+
+        <!-- <figure class="position-absolute bottom-0 left-0 w-100 d-none d-md-block mb-n2">
+            <img class="fill-white"
+            
+        </svg></figure> -->
+        <img src="../static/img/philosophy.png" alt=" The monkey Wise man"> 
+
+            <h1>Speak with the monkey
+            </h1>
+            <!-- <h2>Write down your thoughts and see who'll answer you!</h2> -->
+    </section>
+<!-- 
+    <section class="empty-margin">
+    </section> -->
+    <section id="main">
+        <!-- <h1>Put your name and your thoughts!</h1> -->
+        </p>
+
+        <section class="form" id="history">
+            <h1>Past searchs</h1>
+            {% for s in history %}
+            <section class="form-history"> 
+            <div id="history-user"> 
+                <p> {{ s.user }}</p> 
+            </div>
+            <div id="history-input"> 
+                <p> {{ s.input }}</p>  </div>  <br>
+            <div id="history-author"> 
+                <p> {{ s.author }} </p> 
+            </div>    
+            <div id="history-answer"> 
+                <p> {{ s.answer }}</p>
+            </div>
+             <br>  <br>
+            </section>
+            {% endfor %}
+            <!-- <section id="form">
+                <ul>
+                    <li> date 1</li>
+                    <li> date 2</li>
+                </ul> -->
+        
+        </section>
+
+        <section class="form" >
+            <form class="input-form" method='POST' action='/'>
+                <label class="form-label" for="fname"> Your name</label><br>
+                <input class="username" type="text" name="fname" placeholder="Type your name..."><br>
+                <label class="form-label" for="thoughts"> What's up today? </label> <br>
+                <input class="form-control" type="textarea" name="thoughts" cols="30" rows="5", placeholder="Type your thoughts..."><br>
+                <button class="submit-btn" type="submit" >Submit</button>
+
+            </form>
+    
+    </section>
+
+
+
+<!-- End of Form -->
+    <!-- <section class="empty-margin">
+        <p> {{ waiting }}</p>
+    </section> -->
+   <section class="result">
+       <p class="form-label" > You </p>
+        <div class="input" >
+            {% if input %}
+            {{ input }}
+            {% else %}
+            <p> I love eating carots</p>
+            {% endif %}
+            
+        </div> 
+
+        <div class="form-label">
+            {% if author %}
+            {{ author }}
+            {% else %}
+            <p> The monkey </p>
+            {% endif %} 
+
+        </div> 
+
+        <div class="answer" >
+            {% if answer %}
+            {{ answer }}
+            {% else %}
+            <p> That's very good thing my dear</p>
+            {% endif %}
+
+            {{ answer }}
+
+        </div>
+    </section> 
+    
+    
+</body>
+<footer id="main-footer">
+<p>Copyright &copy; 2021 Monkey and the mind, Betty Le Dem</p></footer>
+</html>
