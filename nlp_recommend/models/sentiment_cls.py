@@ -4,24 +4,22 @@ import os
 import numpy as np
 from tqdm import tqdm
 
-# from nlp_recommend.const import PARENT_DIR
-
-PARENT_DIR = '/home/bettyld/PJ/Documents/NLP_PJ/nlp_recommend'
-MAT_PATH = os.path.join(PARENT_DIR, 'labels/sent_labels.pkl')
-BATCH_SIZE = 100
+from nlp_recommend.const import PARENT_DIR
+from nlp_recommend.settings import BATCH_SIZE
 
 
 class SentimentCls():
-    def __init__(self, data=None):
+    def __init__(self, dataset='merged', data=None):
+        self.dataset = os.path.join(PARENT_DIR, 'labels/{dataset}_labels.pkl')
         self.load()
         if not hasattr(self, 'labels'):
             assert data is not None, 'No cache data found, add data argument'
             self.fit(data)
 
-    def load(self, mat_path=MAT_PATH):
+    def load(self):
         self.model = pipeline('sentiment-analysis')
-        if os.path.exists(mat_path):
-            self.labels = pickle.load(open(mat_path, 'rb'))
+        if os.path.exists(self.dataset):
+            self.labels = pickle.load(open(self.dataset, 'rb'))
 
     def fit(self, data):
         self.labels = []
@@ -36,12 +34,11 @@ class SentimentCls():
         """ Take the input sentence and return the dataset idx
         that matches with the input sentence sentiment."""
         # Retrieve the label of the input sentence
-        in_label = self.predict(in_sentence)[0]['label']
-        print(in_label)
+        sentiment = self.predict(in_sentence)[0]['label']
         labels_idx = self.labels[idx_list]
-        mask = np.argwhere(labels_idx == in_label).flatten()
-        filtered = idx_list[mask]
-        return filtered
+        mask = np.argwhere(labels_idx == sentiment).flatten()
+        filtered = np.array(idx_list)[mask]
+        return filtered, sentiment
 
     def predict(self, in_sentence):
         if in_sentence.__class__.__name__ == 'str':
@@ -51,8 +48,8 @@ class SentimentCls():
         label = self.model(in_sentence)
         return label
 
-    def save_result(self, mat_path=MAT_PATH):
-        with open(mat_path, 'wb') as fw:
+    def save(self):
+        with open(self.dataset, 'wb') as fw:
             pickle.dump(self.labels, fw)
 
 

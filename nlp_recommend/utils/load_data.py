@@ -1,5 +1,5 @@
 from nlp_recommend.const import DATA_PATH, PARENT_DIR
-from nlp_recommend.utils.clean_data import clean_text, tokenizer
+from nlp_recommend.utils.clean_data import clean_beginning, clean_text, tokenizer
 from nlp_recommend.settings import MAX_CHAR_PER_ROW
 from nlp_recommend.models import SentimentCls
 from nlp_recommend.settings import BATCH_SIZE
@@ -10,7 +10,7 @@ import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from tqdm import tqdm
 
-CLEANDATA_PATH = os.path.join(PARENT_DIR, 'dataset/clean_sentences.csv')
+DATA_PATH = os.path.join(PARENT_DIR, 'dataset')
 
 
 def apply_voc(vocab, char):
@@ -24,34 +24,40 @@ def apply_voc(vocab, char):
 class LoadData:
     """An iterator to load the philo corpus"""
 
-    def __init__(self, cache=False,
+    def __init__(self, dataset='merged', cache=False,
                  n_max=None,
                  random=False,
                  char_max=None,
                  remove_numbered_rows=True,
-                 remove_person_row=True):
+                 remove_person_row=True,
+                 tokenize=True,
+                 lemmatize=True):
         self.n_max = n_max  # maximum number of row
         self.random = random
         self.char_max = char_max if char_max else MAX_CHAR_PER_ROW
         self.remove_numbered_row = remove_numbered_rows
         self.remove_person_row = remove_person_row
-        # if cache:
-
-    def load(self, tokenize=True, lemmatize=True):
         self.tokenize = tokenize
         self.lemmatize = lemmatize
-        self.corpus = self.load_data()
-
-        return self.corpus
+        if cache and dataset:
+            self.dataset = os.path.join(DATA_PATH, dataset+'_clean.csv')
+            self.corpus = pd.read_csv(self.dataset, lineterminator='\n')
+            # Read tok_lem_sentence as lists and not strings
+            self.corpus['tok_lem_sentence'] = self.corpus['tok_lem_sentence'].apply(
+                lambda x: eval(x))
+        else:
+            self.dataset = os.path.join(DATA_PATH, dataset+'.csv')
+            self.corpus = self.load_data()
 
     def load_data(self):
         df = self.load_philo()
         df = self.clean_sentences(df)
+        print(df.columns)
         df = df.reset_index()
         return df
 
-    def load_philo(self, data_path=DATA_PATH):
-        df = pd.read_csv(data_path)
+    def load_philo(self):
+        df = pd.read_csv(self.dataset, lineterminator='\n')
         if self.random:
             df = df.sample(frac=1)
         if self.n_max:
@@ -67,7 +73,8 @@ class LoadData:
         return df
 
     def clean_sentences(self, df):
-        print('Cleaning sentences')
+        print('Cleaning sentences...')
+        df['sentence'] = df['sentence'].apply(clean_beginning)
         df['clean_sentence'] = df['sentence'].apply(clean_text)
         df['clean_sentence'] = df['clean_sentence'].apply(
             lambda x: re.sub('[^A-Za-z0-9]+', ' ', x))
@@ -86,12 +93,12 @@ class LoadData:
 
     @staticmethod
     def remove_person(df):
-        print('Removing proper noun...')
+        print('Removing proper noun...', len(df))
         import spacy
         nlp = spacy.load("en_core_web_sm")
 
         list_result = []
-        batchs = np.array_split(df, len(df)//BATCH_SIZE)
+        batchs = np.array_split(df, max(1, len(df)//BATCH_SIZE))
 
         with ProcessPoolExecutor() as e:
             fs = [e.submit(process_one_chunk, mini_df, nlp)
@@ -103,7 +110,7 @@ class LoadData:
                 assert f._exception is None
                 list_result.append(f._result)
         df_result = pd.concat(list_result)
-        df_result = df_result.loc[df_result.propn]
+        df_result = df_result.loc[~df_result.propn]
         df_result = df_result.drop(columns=['propn'])
         return df_result
 

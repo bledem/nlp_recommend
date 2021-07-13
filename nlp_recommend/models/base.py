@@ -8,13 +8,13 @@ class BaseModel():
         self.name = name
 
     def fit_transform(self):
-        pass
+        raise NotImplementedError
 
     def save_embeddings(self):
-        pass
+        raise NotImplementedError
 
-    def predict(self, topk):
-        pass
+    def predict(self):
+        raise NotImplementedError
 
     @staticmethod
     def extract_best_indices(score_mat, topk=TOPK, mask=None):

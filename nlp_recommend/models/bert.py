@@ -51,12 +51,16 @@ class BertModel(BaseModel):
             truncation=True,
             max_length=512,
             return_tensors="pt")
-
-        embeddings = np.array(self.pipeline(data))
+        # each of the 512 token has a 768-d vector
+        embeddings = np.array(self.pipeline(data))  # shape 1, 5, 768
+        # retrieve attention mask
+        # print('embeddings', embeddings.shape)
         mask = token_dict['attention_mask'].unsqueeze(
             -1).expand(embeddings.shape).float()
         mask = mask.detach().numpy()
+        # apply mask
         mask_embeddings = embeddings * mask
+        # sum all the tokens on the axis 1 to keep one 768-d "sentence" vector
         summed = np.sum(mask_embeddings, axis=1)
         # Then sum the number of values that must be given attention in each position of the tensor:
         summed_mask = np.clip(mask.sum(1), a_min=1e-9, a_max=None)
