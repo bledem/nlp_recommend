@@ -63,3 +63,19 @@ def tokenizer(sentence, min_word=MIN_WORDS, lemmatize=True, stopwords=STOPWORDS)
         tokens = [w for w in word_tokenize(sentence) if (len(w) > min_word
                                                          and w not in stopwords)]
     return tokens
+
+
+def format_text(list_lines):
+    pattern = re.compile('\[|\]')
+    list_lines = list_lines[0].split(', ')
+    one_text = ' '.join(list_lines)
+    one_text = one_text.replace('\' \'', ' ')
+    list_lines = one_text.split('. ')
+    nb_lines = len(list_lines)
+    twenty_per = int(0.2 * nb_lines)
+    reduced = list_lines[twenty_per:-2*twenty_per]
+    reduced = [sentence + '.' for sentence in reduced if (
+        len(sentence) > 12 and not 'chapter' in sentence.lower())]
+    reduced = [sentence.capitalize()
+               for sentence in reduced if not pattern.search(sentence)]
+    return reduced

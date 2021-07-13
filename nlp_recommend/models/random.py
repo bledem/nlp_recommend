@@ -1,7 +1,10 @@
 from nlp_recommend.models import BertModel, TfIdfModel, Word2VecModel, SpacyModel
 from nlp_recommend.models import SentimentCls
+from nlp_recommend.utils.clean_data import format_text
+
 import pandas as pd
 import random
+import os
 
 MODEL_MAP = {'bert': BertModel, 'spacy': SpacyModel,
              'word2vec': Word2VecModel, 'tfidf': TfIdfModel}
@@ -10,6 +13,7 @@ PROBA_DICT = {1: 'bert', 2: 'bert', 3: 'bert', 4: 'bert', 5: 'spacy',
               6: 'spacy', 7: 'spacy', 8: 'tfidf', 9: 'tfidf', 10: 'word2vec'}
 
 DATA_PATH = '/home/bettyld/PJ/Documents/NLP_PJ/nlp_recommend/dataset/merged_clean.csv'
+ORG_TXT_DIR = '/home/bettyld/PJ/Documents/NLP_PJ/data/gutenberg'
 
 
 class RandomModel():
@@ -30,11 +34,27 @@ class RandomModel():
                 break
             else:
                 history.append(model_choice)
-        result = self.dataset_csv[['sentence', 'author']].iloc[index]
-        return result, model_choice
+        result = self.dataset_csv[['sentence', 'author', 'title']].iloc[index]
+        title, sentence = result.title, result.sentence
+        wrapped_sentence = self.wrap(title, sentence)
+        return result, wrapped_sentence, model_choice
 
-    def wrap:
-        pass
+    def wrap(self, title, sentence, offset=3):
+        res = None
+        txt_path = os.path.join(ORG_TXT_DIR, title.replace(' ', '_')+'.txt')
+        if os.path.exists(txt_path):
+            with open(txt_path, 'r') as f:
+                list_lines = f.readlines()
+                if len(list_lines) == 1:
+                    reduced = format_text(list_lines)
+                else:
+                    reduced = list_lines
+            sentence_idx = [index for index, s in enumerate(
+                reduced) if sentence in s]
+            if sentence_idx:
+                sentence_idx = sentence_idx[0]
+                res = reduced[sentence_idx-offset: sentence_idx+offset]
+        return res
 
     def predict_one_model(self, sentence, model):
         index = model.predict(sentence)
