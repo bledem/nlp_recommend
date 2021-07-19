@@ -8,10 +8,12 @@ class BaseModel():
         self.name = name
 
     def fit_transform(self):
-        raise NotImplementedError
+        pass
+        # raise NotImplementedError
 
     def save_embeddings(self):
-        raise NotImplementedError
+        pass
+        # raise NotImplementedError
 
     def predict(self):
         raise NotImplementedError

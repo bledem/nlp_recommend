@@ -28,9 +28,11 @@ class SpacyModel(BaseModel):
         # calling nlp on a string and spaCy tokenizes the text and creates a document object
         self.embed_mat = list(map(lambda x: self.model(' '.join(x)), data))
 
+    def transform(self, sentence):
+        return self.model(sentence).vector
+
     def predict(self, in_sentence):
         doc_test = self.model(in_sentence)
-        # print(doc_test)
         mat = np.array([doc_test.similarity(line) for line in self.embed_mat])
         # keep if vector has a norm
         mat_mask = np.array(

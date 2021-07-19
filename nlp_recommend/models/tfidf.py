@@ -30,6 +30,9 @@ class TfIdfModel(BaseModel):
         if os.path.exists(MODEL_PATH):
             self.model = pickle.load(open(MODEL_PATH, "rb"))
 
+    def transform(self, data):
+        return self.model.transform(data)
+
     def fit_transform(self, data):
 
         stop_words = set(stopwords.words('english'))
