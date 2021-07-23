@@ -16,6 +16,7 @@ ORG_TXT_DIR = '/home/bettyld/PJ/Documents/NLP_PJ/data/gutenberg'
 
 class Warper:
     def __init__(self, dataset='philosophy'):
+        self.dataset = dataset
         self.data_path = os.path.join(DATASET_PATH, f'{dataset}_clean.csv')
         assert os.path.exists(self.data_path)
         self.corpus = pd.read_csv(self.data_path, lineterminator='\n')
@@ -24,17 +25,18 @@ class Warper:
         best_index = model.predict(sentence)
         result = self.corpus[['sentence', 'author', 'title']].iloc[best_index]
         title, sentence = result.title.values[0], result.sentence.values[0]
-        wrapped_sentence = self._wrap(title, sentence)
+        wrapped_sentence = self._wrap(title, sentence, self.dataset)
         if return_index:
             result = best_index
         return result, wrapped_sentence
 
     @staticmethod
-    def _wrap(title, sentence, offset=3):
+    def _wrap(title, sentence, dataset, offset=3):
         res = None
         trial = 5
         sentence_idx = []
-        txt_path = os.path.join(ORG_TXT_DIR, title.replace(' ', '_')+'.txt')
+        txt_path = os.path.join(
+            ORG_TXT_DIR+f'_{dataset}', title.replace(' ', '_')+'.txt')
         # print(txt_path)
         if os.path.exists(txt_path):
             with open(txt_path, 'r') as f:

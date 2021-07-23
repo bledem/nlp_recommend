@@ -17,7 +17,7 @@ MODEL_MAP = {'bert': BertModel, 'spacy': SpacyModel,
 class CombinedModel(BaseModel):
     def __init__(self, dataset='philosophy', models=['spacy', 'bert']):
         self.dataset = dataset
-        self.models = {m: MODEL_MAP[m]() for m in models}
+        self.models = {m: MODEL_MAP[m](dataset=dataset) for m in models}
         self.concat_embed()
 
     def concat_embed(self):
