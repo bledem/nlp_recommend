@@ -72,10 +72,11 @@ def format_text(list_lines):
     one_text = one_text.replace('\' \'', ' ')
     list_lines = one_text.split('. ')
     nb_lines = len(list_lines)
+    # remove header and footer
     twenty_per = int(0.2 * nb_lines)
     reduced = list_lines[twenty_per:-2*twenty_per]
     reduced = [sentence + '.' for sentence in reduced if (
         len(sentence) > 12 and not 'chapter' in sentence.lower())]
-    reduced = [sentence.capitalize()
+    reduced = [sentence.capitalize().strip()
                for sentence in reduced if not pattern.search(sentence)]
     return reduced

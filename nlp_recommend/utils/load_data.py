@@ -24,7 +24,7 @@ def apply_voc(vocab, char):
 class LoadData:
     """An iterator to load the philo corpus"""
 
-    def __init__(self, dataset='merged', cache=False,
+    def __init__(self, dataset='philosophy', cache=False,
                  n_max=None,
                  random=False,
                  char_max=None,
@@ -39,15 +39,20 @@ class LoadData:
         self.remove_person_row = remove_person_row
         self.tokenize = tokenize
         self.lemmatize = lemmatize
+        self.data_path = os.path.join(DATA_PATH, dataset+'.csv')
+        self.clean_data_path = os.path.join(
+            DATA_PATH, dataset+'_clean.csv')
+        # Load already cleaned csv data file
         if cache and dataset:
-            self.dataset = os.path.join(DATA_PATH, dataset+'_clean.csv')
-            self.corpus = pd.read_csv(self.dataset, lineterminator='\n')
+            self.corpus_df = pd.read_csv(
+                self.clean_data_path, lineterminator='\n', index_col=0)
             # Read tok_lem_sentence as lists and not strings
-            self.corpus['tok_lem_sentence'] = self.corpus['tok_lem_sentence'].apply(
+            self.corpus_df['tok_lem_sentence'] = self.corpus_df['tok_lem_sentence'].apply(
                 lambda x: eval(x))
+        # Load and clean
         else:
-            self.dataset = os.path.join(DATA_PATH, dataset+'.csv')
-            self.corpus = self.load_data()
+            self.corpus_df = self.load_data()
+            self.save_dataset()
 
     def load_data(self):
         df = self.load_philo()
@@ -57,7 +62,7 @@ class LoadData:
         return df
 
     def load_philo(self):
-        df = pd.read_csv(self.dataset, lineterminator='\n')
+        df = pd.read_csv(self.data_path, lineterminator='\n', index_col=0)
         if self.random:
             df = df.sample(frac=1)
         if self.n_max:
@@ -113,6 +118,9 @@ class LoadData:
         df_result = df_result.loc[~df_result.propn]
         df_result = df_result.drop(columns=['propn'])
         return df_result
+
+    def save_dataset(self):
+        self.corpus_df.to_csv(self.clean_data_path, index=False)
 
 
 def detect_propn(x, nlp):

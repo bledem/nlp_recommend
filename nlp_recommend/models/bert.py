@@ -10,18 +10,19 @@ from nlp_recommend.models.base import BaseModel
 from nlp_recommend.settings import TOPK, BERT_MODEL, BERT_BATCH_SIZE
 from nlp_recommend.const import PARENT_DIR
 
-model_name = BERT_MODEL.split('/')[1] if '/' in BERT_MODEL else BERT_MODEL
-MAT_PATH = os.path.join(PARENT_DIR, f'weights/{model_name}_philo.pkl')
+MODEL_NAME = BERT_MODEL.split('/')[1] if '/' in BERT_MODEL else BERT_MODEL
 
 
 class BertModel(BaseModel):
-    def __init__(self, data=None, dataset='philo', model_name=BERT_MODEL, device=-1, small_memory=True, batch_size=BERT_BATCH_SIZE):
+    def __init__(self, data=None, dataset='philosophy', model_name=BERT_MODEL, device=-1, small_memory=True, batch_size=BERT_BATCH_SIZE):
         super().__init__(name='Transformers')
         self.model_name = model_name
         self._set_device(device)
         self.small_device = 'cpu' if small_memory else self.device
         self.dataset = dataset
         self.batch_size = batch_size
+        self.mat_path = os.path.join(
+            PARENT_DIR, 'weights', dataset, f'{MODEL_NAME}_{dataset}.pkl')
         self.load_model()
         self.load()
         if not hasattr(self, 'embed_mat'):
@@ -47,16 +48,15 @@ class BertModel(BaseModel):
         self.pipeline = pipeline('feature-extraction',
                                  model=self.model, tokenizer=self.tokenizer, device=device)
 
-    def load(self, mat_path=MAT_PATH):
-        if os.path.exists(mat_path):
-            self.embed_mat = pickle.load(open(mat_path, "rb"))
+    def load(self):
+        if os.path.exists(self.mat_path):
+            self.embed_mat = pickle.load(open(self.mat_path, "rb"))
 
     def fit_transform(self, data):
         nb_batchs = 1 if (len(data) < self.batch_size) else len(
             data) // self.batch_size
         batchs = np.array_split(data, nb_batchs)
         mean_pooled = []
-        print('Training...')
         for batch in tqdm(batchs, total=len(batchs), desc='Training...'):
             mean_pooled.append(self.transform(batch))
         mean_pooled_tensor = torch.tensor(
@@ -91,16 +91,16 @@ class BertModel(BaseModel):
         mean_pooled = mean_pooled.to(self.small_device)
         return mean_pooled
 
-    def save_embeddings(self, mat_path=MAT_PATH):
+    def save_embeddings(self):
         """ """
-        with open(mat_path, 'wb') as fw:
+        with open(self.mat_path, 'wb') as fw:
             pickle.dump(self.embed_mat, fw)
 
-    def predict(self, in_sentence):
+    def predict(self, in_sentence, topk=TOPK):
         input_vec = self.transform(in_sentence)
         mat = cosine_similarity(input_vec, self.embed_mat)
         # best cos sim for each token independantly
-        best_index = self.extract_best_indices(mat, topk=3)
+        best_index = self.extract_best_indices(mat, topk=topk)
         return best_index
 
 

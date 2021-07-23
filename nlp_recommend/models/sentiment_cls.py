@@ -9,8 +9,10 @@ from nlp_recommend.settings import BATCH_SIZE
 
 
 class SentimentCls():
-    def __init__(self, dataset='merged', data=None):
-        self.dataset = os.path.join(PARENT_DIR, 'labels/{dataset}_labels.pkl')
+    def __init__(self, dataset='philosophy', data=None):
+        self.label_path = os.path.join(
+            PARENT_DIR, f'labels/{dataset}/labels.pkl')
+        self.dataset = dataset
         self.load()
         if not hasattr(self, 'labels'):
             assert data is not None, 'No cache data found, add data argument'
@@ -18,8 +20,8 @@ class SentimentCls():
 
     def load(self):
         self.model = pipeline('sentiment-analysis')
-        if os.path.exists(self.dataset):
-            self.labels = pickle.load(open(self.dataset, 'rb'))
+        if os.path.exists(self.label_path):
+            self.labels = pickle.load(open(self.label_path, 'rb'))
 
     def fit(self, data):
         self.labels = []
@@ -49,7 +51,8 @@ class SentimentCls():
         return label
 
     def save(self):
-        with open(self.dataset, 'wb') as fw:
+        os.makedirs(os.path.dirname(self.label_path), exist_ok=True)
+        with open(self.label_path, 'wb') as fw:
             pickle.dump(self.labels, fw)
 
 
@@ -58,10 +61,11 @@ if __name__ == '__main__':
     sys.path.insert(0, '/home/bettyld/PJ/Documents/NLP_PJ/nlp_recommend')
     from nlp_recommend import LoadData
 
-    corpus = LoadData(n_max=50, random=False, remove_numbered_rows=True)
+    corpus = LoadData(dataset='philosophy', n_max=50,
+                      random=False, remove_numbered_rows=True)
     corpus.load()
     df = corpus.corpus
-    cls = SentimentCls(data=df.sentence.values)
+    cls = SentimentCls(dataset='philosophy', data=df.sentence.values)
     index = [3, 4]
     filter_index = cls.match_filter('This is a trial', index)
     print(df.iloc[filter_index])

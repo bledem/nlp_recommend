@@ -11,13 +11,15 @@ from nlp_recommend.models.base import BaseModel
 from nlp_recommend.settings import TOPK
 from nlp_recommend.const import PARENT_DIR
 
-MODEL_PATH = os.path.join(PARENT_DIR, 'weights/tfidf_model.pkl')
-MAT_PATH = os.path.join(PARENT_DIR, 'weights/tfidf_mat.pkl')
-
 
 class TfIdfModel(BaseModel):
-    def __init__(self, data=None):
+    def __init__(self, data=None, dataset='philosophy'):
         super().__init__(name='TfIdf')
+        self.dataset = dataset
+        self.model_path = os.path.join(
+            PARENT_DIR, 'weights', dataset, 'tfidf_model.pkl')
+        self.mat_path = os.path.join(
+            PARENT_DIR, 'weights', dataset, 'tfidf_mat.pkl')
         self.load()
         if not hasattr(self, 'embed_mat') or not hasattr(self, 'model'):
             assert data is not None, 'No cache data found, add data argument'
@@ -25,10 +27,10 @@ class TfIdfModel(BaseModel):
         assert (self.model)
 
     def load(self):
-        if os.path.exists(MAT_PATH):
-            self.embed_mat = pickle.load(open(MAT_PATH, "rb"))
-        if os.path.exists(MODEL_PATH):
-            self.model = pickle.load(open(MODEL_PATH, "rb"))
+        if os.path.exists(self.mat_path):
+            self.embed_mat = pickle.load(open(self.mat_path, "rb"))
+        if os.path.exists(self.model_path):
+            self.model = pickle.load(open(self.model_path, "rb"))
 
     def transform(self, data):
         return self.model.transform(data)
@@ -44,22 +46,20 @@ class TfIdfModel(BaseModel):
         self.embed_mat = tfidf_mat
         self.model = vectorizer
 
-    def save_embeddings(self,
-                        model_path=MODEL_PATH,
-                        mat_path=MAT_PATH):
+    def save_embeddings(self):
         """ """
-        with open(mat_path, 'wb') as fw:
+        with open(self.mat_path, 'wb') as fw:
             pickle.dump(self.embed_mat, fw)
 
-        with open(model_path, 'wb') as fw:
+        with open(self.model_path, 'wb') as fw:
             pickle.dump(self.model, fw)
 
-    def predict(self, in_sentence):
+    def predict(self, in_sentence, topk=TOPK):
         tokens = [str(tok) for tok in tokenizer(in_sentence)]
         vec = self.model.transform(tokens)
         # Create list with similarity between two sentence
         mat = cosine_similarity(vec, self.embed_mat)
-        best_index = self.extract_best_indices(mat, topk=TOPK)
+        best_index = self.extract_best_indices(mat, topk=topk)
         return best_index
 
 

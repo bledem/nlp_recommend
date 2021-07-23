@@ -1,28 +1,22 @@
 from nlp_recommend.models.base import BaseModel
 from transformers.utils import logging
 from nlp_recommend.models import BertModel, TfIdfModel, Word2VecModel, SpacyModel
-from nlp_recommend.models import SentimentCls
-from nlp_recommend.utils.clean_data import format_text
 from sklearn.metrics.pairwise import cosine_similarity
+from nlp_recommend.settings import TOPK
+from nlp_recommend.const import ORG_TXT_DIR, DATASET_PATH
 
-import pandas as pd
-import random
-import os
 import logging
 import numpy as np
 
 logger = logging.getLogger(__name__)
 
-DATA_PATH = '/home/bettyld/PJ/Documents/NLP_PJ/nlp_recommend/dataset/merged_clean.csv'
-ORG_TXT_DIR = '/home/bettyld/PJ/Documents/NLP_PJ/data/gutenberg'
 MODEL_MAP = {'bert': BertModel, 'spacy': SpacyModel,
              'word2vec': Word2VecModel, 'tfidf': TfIdfModel}
 
 
 class CombinedModel(BaseModel):
-    def __init__(self, dataset='merged', models=['spacy', 'bert']):
-        # self.cls = SentimentCls(dataset=dataset)
-        # self.corpus = pd.read_csv(DATA_PATH, lineterminator='\n')
+    def __init__(self, dataset='philosophy', models=['spacy', 'bert']):
+        self.dataset = dataset
         self.models = {m: MODEL_MAP[m]() for m in models}
         self.concat_embed()
 
@@ -45,7 +39,7 @@ class CombinedModel(BaseModel):
             array_mat[idx] = i.vector
         return array_mat
 
-    def predict(self, sentence):
+    def predict(self, sentence, topk=TOPK):
         input_vec = []
         for model in self.models:
             input_embed = self.models[model].transform(sentence)
@@ -55,10 +49,5 @@ class CombinedModel(BaseModel):
             input_vec.extend(input_embed)
         input_vec = np.expand_dims(input_vec, axis=0)
         mat = cosine_similarity(input_vec, self.embed_mat)
-        best_index = self.extract_best_indices(mat, topk=1)
-
-        # result = self.corpus[['sentence', 'author', 'title']].iloc[index]
-        # title, sentence = result.title, result.sentence
-        # wrapped_sentence = self._wrap(title, sentence)
-        # return result, wrapped_sentence, model_choice
+        best_index = self.extract_best_indices(mat, topk=topk)
         return best_index

@@ -8,25 +8,30 @@ from nlp_recommend.models.base import BaseModel
 from nlp_recommend.settings import TOPK
 from nlp_recommend.const import PARENT_DIR
 
-MODEL_PATH = os.path.join(PARENT_DIR, 'weights/w2v.model')
-MODEL_FAST_PATH = os.path.join(PARENT_DIR, 'weights/w2v_fast.model')
-MAT_PATH = os.path.join(PARENT_DIR, 'weights/w2v_mat.pkl')
-
 
 class Word2VecModel(BaseModel):
-    def __init__(self, data=None):
+    def __init__(self, data=None, dataset='philosophy', fast_complete=False):
         super().__init__(name='Word2Vec')
+        self.dataset = dataset
+        self.fast_complete = fast_complete
+        self.model_path = os.path.join(
+            PARENT_DIR, 'weights', dataset, f'w2v.model')
+        self.model_fast_path = os.path.join(
+            PARENT_DIR, 'weights', dataset, f'w2v_fast.model')
+        self.mat_path = os.path.join(
+            PARENT_DIR, 'weights', dataset, f'w2v_mat.pkl')
         self.load()
         if not hasattr(self, 'dataset') or not hasattr(self, 'model'):
             assert data is not None, 'No cache data found, add data argument'
             self.fit_transform(data)
 
-    def load(self, mat_path=MAT_PATH, model_path=MODEL_PATH):
-        if os.path.exists(mat_path):
-            self.model = Word2Vec.load(MODEL_PATH)
-        if os.path.exists(model_path):
-            self.dataset = pickle.load(open(mat_path, 'rb'))
-        # self.model_fast.save(MODEL_FAST_PATH)
+    def load(self):
+        if os.path.exists(self.model_path):
+            self.model = Word2Vec.load(self.model_path)
+        if os.path.exists(self.mat_path):
+            self.dataset = pickle.load(open(self.mat_path, 'rb'))
+        if self.fast_complete and os.path.exists(self.model_fast_path):
+            self.model_fast.save(self.model_fast_path)
 
     def fit_transform(self, data):
         self.model = Word2Vec(min_count=1,
@@ -39,11 +44,12 @@ class Word2VecModel(BaseModel):
                          epochs=10)
 
         self.dataset = data
-        # self.model_fast = FastText(vector_size=256,
-        #                            window=3,
-        #                            min_count=1,
-        #                            sentences=data,
-        #                            epochs=10)
+        if self.fast_complete:
+            self.model_fast = FastText(vector_size=256,
+                                       window=3,
+                                       min_count=1,
+                                       sentences=data,
+                                       epochs=10)
 
     def predict(self, sentence, topk=TOPK):
         sentence = sentence.split()
@@ -52,13 +58,12 @@ class Word2VecModel(BaseModel):
         for w in sentence:
             if self.is_word_in_model(w):
                 in_vocab_list.append(w)
-    #         else:
-    #             list_synonyms = find_synonym(w)
-    #             for synonym in list_synonyms:
-    #                 if is_word_in_model(synonym, wv):
-    #                     in_vocab_list.append(synonym)
-    #                     added += 1
-    #                     break
+            elif self.fast_complete:
+                list_synonyms = self.find_synonym(w)
+                for synonym in list_synonyms:
+                    if self.is_word_in_model(synonym):
+                        in_vocab_list.append(synonym)
+                        break
         # print(in_vocab_list)
         if len(in_vocab_list) > 0:
             sim_mat = np.zeros(len(self.dataset))  # TO DO
@@ -84,10 +89,9 @@ class Word2VecModel(BaseModel):
             positive=[word], topn=5)  # ([(w, cos_sim), ...])
         return [w[0] for w in list_similars]
 
-    def save_embeddings(self, model_path=MODEL_PATH, mat_path=MAT_PATH,
-                        model_fast_path=MODEL_FAST_PATH):
-        self.model.save(model_path)
-        with open(mat_path, 'wb') as fw:
+    def save_embeddings(self):
+        self.model.save(self.model_path)
+        with open(self.mat_path, 'wb') as fw:
             pickle.dump(self.dataset, fw)
-
-        # self.model_fast.save(model_fast_path)
+        if hasattr(self, 'model_fast'):
+            self.model_fast.save(self.model_fast_path)
