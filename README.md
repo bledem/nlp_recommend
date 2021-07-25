@@ -1,12 +1,12 @@
 # nlp_recommend
 
 ## 1. Set up your environment
-
+```
 pip install virtualenv
 python3 -m venv env
 source env/bin/activate
 pip install -r requirements.txt 
-
+```
 
 ## 2. Download pre-trained weights
 
@@ -27,9 +27,11 @@ Architecture:
 
 (you need to export the variable in CLI every time you launch the app)
 
+```
 export FLASK_APP=app/app/py
 export FLASK_ENV=development
 flask run -h localhost -p 5000
+```
 
 Go to url: localhost:5000 in your browser. 
 
