@@ -32,7 +32,7 @@ class Warper:
 
     @staticmethod
     def _wrap(title, sentence, dataset, offset=3):
-        res = None
+        res = {'before':None, 'sentence':None, 'after':None}
         trial = 5
         sentence_idx = []
         txt_path = os.path.join(
@@ -57,5 +57,7 @@ class Warper:
                 trial -= 1
             if len(sentence_idx) == 1:
                 sentence_idx = sentence_idx[0]
-                res = reduced[sentence_idx-offset: sentence_idx+offset]
+                res['before'] = reduced[sentence_idx-offset:sentence_idx]
+                res['sentence'] = reduced[sentence_idx]
+                res['after'] = reduced[sentence_idx+1:sentence_idx+offset]
         return res

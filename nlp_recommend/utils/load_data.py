@@ -62,7 +62,7 @@ class LoadData:
         return df
 
     def load_philo(self):
-        df = pd.read_csv(self.data_path, lineterminator='\n', index_col=0)
+        df = pd.read_csv(self.data_path, lineterminator='\n')
         if self.random:
             df = df.sample(frac=1)
         if self.n_max:
@@ -71,10 +71,17 @@ class LoadData:
         return df
 
     def clean_corpus(self, df):
+        df = self.clean_titles(df)
         if self.remove_numbered_row:
             df = self.remove_numbers(df)
         if self.remove_person_row:
             df = self.remove_person(df)
+        return df
+
+    @staticmethod
+    def clean_titles(df):
+        pattern = re.compile(r'[\n\r\t]')
+        df['title'] = df['title'].apply(lambda x: pattern.sub(' ', x))
         return df
 
     def clean_sentences(self, df):

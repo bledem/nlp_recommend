@@ -170,6 +170,7 @@ body {
   font-size: 20px;
   /* margin-bottom: 10px; */
   color: rgb(67, 67, 77);
+  margin-bottom: 0px;
 }
 
 input,
@@ -315,6 +316,12 @@ button:not(:disabled),
     border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
+.category {
+  color: brown;
+  text-align: center;
+  margin:0;
+}
+
 [type="text"] {
   outline-offset: -2px;
   -webkit-appearance: textfield;
@@ -348,6 +355,7 @@ button:not(:disabled),
   width: 95%;
   padding-left: 0px;
   margin-left: 0px;
+  margin-bottom: 5%;
 }
 
 .input {
@@ -368,6 +376,9 @@ button:not(:disabled),
   background-color: rgb(221, 250, 221);
 }
 
+.quote {
+  background-color: yellow;
+}
 .answer {
   position: relative;
   padding: 1rem 1rem;
@@ -386,6 +397,16 @@ button:not(:disabled),
   background-color: rgb(213, 214, 243);
 }
 
+.answer-context {
+  opacity: 0.5;
+}
+
+.title{
+  font-style: italic;
+  text-align: right;
+  margin-top:0;
+
+}
 .author {
   font-weight: bolder;
 }

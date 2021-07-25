@@ -12,6 +12,7 @@
     <nav class="navbar">
             <ul>
                 <li> <a href="#"> Home </a></li>
+                <li> <a href="#"> About </a></li>
                 <li> <a href="#"> Text Search </a></li>
                 <li> <a href="#"> Image Search  </a></li>
                 <li> <a href="#"> Contact </a></li>
@@ -20,20 +21,7 @@
     
     </nav> 
 
-    
 
-    <section id="showcase">
-
-        <!-- <figure class="position-absolute bottom-0 left-0 w-100 d-none d-md-block mb-n2">
-            <img class="fill-white"
-            
-        </svg></figure> -->
-        <img src="../static/img/philosophy.png" alt=" The monkey Wise man"> 
-
-            <h1>Speak with the monkey
-            </h1>
-            <!-- <h2>Write down your thoughts and see who'll answer you!</h2> -->
-    </section>
 <!-- 
     <section class="empty-margin">
     </section> -->
@@ -67,17 +55,25 @@
         
         </section>
 
+        
+
         <section class="form" >
             <form class="input-form" method='POST' action='/'>
-                <label class="form-label" for="fname"> Your name</label><br>
-                <input class="username" type="text" name="fname" placeholder="Type your name..."><br>
+                <!-- <label class="form-label" for="fname"> Your name</label><br>
+                <input class="username" type="text" name="fname" placeholder="Type your name..."><br> -->
                 <label class="form-label" for="thoughts"> What's up today? </label> <br>
                 <input class="form-control" type="textarea" name="thoughts" cols="30" rows="5", placeholder="Type your thoughts..."><br>
-                <button class="submit-btn" type="submit" >Submit</button>
 
-            </form>
-    
-    </section>
+                <label class="form-label" for="dataset-select"> Category </label>
+                
+                <input type="button" class="username" name="dataset" value="philosophy">
+                <input type="button" class="username" name="dataset" value="psychology">
+
+             <br>
+
+            <button class="submit-btn" type="submit" >Submit</button>
+
+        </form>
 
 
 
@@ -95,29 +91,79 @@
             {% endif %}
             
         </div> 
+     </section>
+     <section class="result">
 
         <div class="form-label">
-            {% if author %}
-            {{ author }}
-            {% else %}
-            <p> The monkey </p>
-            {% endif %} 
+            <p class="category" > Philosophy </p>
 
-        </div> 
+            {% if philo_preds['author'] %}
+            {{ philo_preds['author'] }}
+            {% else %}
+            {% endif %} 
+        </div>
+         <div class='title'> 
+            {% if philo_preds['title'] %}
+            {{ philo_preds['title'] }}
+            {% endif %}
+        </div>
 
         <div class="answer" >
-            {% if answer %}
-            {{ answer }}
+            {% if philo_preds['quote'] %}
+            {{ philo_preds['quote'] }} </div>
             {% else %}
             <p> That's very good thing my dear</p>
             {% endif %}
-
-            {{ answer }}
-
         </div>
+
+        <div class="answer-context" >
+            {% if philo_preds['quote'] %}
+            {{ philo_preds['before'] }}
+            <div class='quote'>  {{ philo_preds['quote'] }} </div>
+            {{ philo_preds['after'] }}
+
+            {% endif %}
+        </div>
+
     </section> 
     
+        <section class="result">
+
+             <div class="form-label">
+                <p class="category" > Psychology </p>
+
+                 {% if psycho_preds['author'] %}
+                 {{ psycho_preds['author'] }}
+                 {% else %}
+                 {% endif %} 
+             </div> <div class='title'> 
+                {% if psycho_preds['title'] %}
+                {{ psycho_preds['title'] }}
+                {% endif %}
+            </div>
+             <div class="answer">
+                {% if psycho_preds['quote'] %}
+               {{ psycho_preds['quote'] }} 
+               {% else %}
+                <p> That's very good thing my dear</p>
+                {% endif %}
+            </div>
+
+             <div class="answer-context" >
+                 {% if psycho_preds['quote'] %}
+                 {{ psycho_preds['before'] }}
+                <div class='quote'>  {{ psycho_preds['quote'] }} </div>
+                 {{ psycho_preds['after'] }}
+                 {% endif %}
+             </div>
+             <div class='title'> 
+                 {% if psycho_preds['title'] %}
+                 {{ psycho_preds['title'] }}
+                 {% endif %}
+             </div>
+         </section> 
     
+
 </body>
 <footer id="main-footer">
 <p>Copyright &copy; 2021 Monkey and the mind, Betty Le Dem</p></footer>

@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 PROBA_DICT = {1: 'combined', 2: 'combined', 3: 'combined', 4: 'combined', 5: 'bert',
-              6: 'spacy', 8: 'tfidf', 9: 'tfidf', 10: 'word2vec'}
+              6: 'spacy', 7: 'word2vec', 8: 'tfidf', 9: 'tfidf', 10: 'word2vec'}
 
 MODEL_MAP = {'bert': BertModel, 'spacy': SpacyModel,
              'word2vec': Word2VecModel, 'tfidf': TfIdfModel, 'combined': CombinedModel}
