@@ -85,9 +85,11 @@ def parse_preds(result, warped):
             pred['title'] = result.title.values[0]
             pred['quote'] = result.sentence.values[0]
             pred['author']= result.author.values[0]
-            print('DEBUG', warped['before'][0:5])
-            pred['before'] = ' .'.join(warped['before'])
-            pred['after'] = ' .'.join(warped['after'])
+            print('warped',warped)
+            if warped['before'] is not None or warped['after'] is not None:
+                print('DEBUG', warped['before'][0:5])
+                pred['before'] = ' .'.join(warped['before'])
+                pred['after'] = ' .'.join(warped['after'])
     return pred
 
 def get_predictions(text, container):
