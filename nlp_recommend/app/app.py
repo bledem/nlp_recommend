@@ -1,9 +1,13 @@
 from flask import Flask, request, render_template
 from flask_sqlalchemy import SQLAlchemy
 import dill
+import os
+
+CUR_DIR = os.path.dirname(__file__) # app folder
+PARENT_DIR = os.path.dirname(os.path.dirname(CUR_DIR)) # nlp_recommend
 
 import sys
-sys.path.insert(0, '/home/bettyld/PJ/Documents/NLP_PJ/nlp_recommend')
+sys.path.insert(0, PARENT_DIR)
 
 from nlp_recommend.models.container import Container
 
@@ -12,8 +16,9 @@ from nlp_recommend.models.container import Container
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 
-model_psycho = dill.load(open('/home/bettyld/PJ/Documents/NLP_PJ/nlp_recommend/models/psychology_container.pkl', 'rb'))
-model_philo = dill.load(open('/home/bettyld/PJ/Documents/NLP_PJ/nlp_recommend/models/philosophy_container_light.pkl', 'rb'))
+model_psycho = dill.load(open(os.path.join(PARENT_DIR, 'models/psychology_container.pkl'), 'rb'))
+model_philo = dill.load(open(os.path.join(PARENT_DIR, 'models/philosophy_container_light.pkl'), 'rb'))
+
 print('loaded!')
 
 # db = SQLAlchemy(app)

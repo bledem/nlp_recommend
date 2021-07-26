@@ -28,7 +28,7 @@ Architecture:
 (you need to export the variable in CLI every time you launch the app)
 
 ```
-export FLASK_APP=app/app/py
+export FLASK_APP=nlp_recommend/app/app
 export FLASK_ENV=development
 flask run -h localhost -p 5000
 ```
