@@ -1,3 +1,7 @@
+"""
+Requires models or weights folder.
+"""
+
 from sklearn.metrics.pairwise import cosine_similarity
 from transformers import AutoTokenizer, AutoModel, pipeline
 import torch

@@ -22,7 +22,11 @@ class SpacyModel(BaseModel):
         assert (self.embed_mat)
 
     def load(self):
-        self.model = spacy.load("en_core_web_lg")
+        try:
+            self.model = spacy.load("en_core_web_lg")
+        except OSError:
+            os.system('python3 -m spacy download en_core_web_lg')
+            self.model = spacy.load("en_core_web_lg")
         if os.path.exists(self.mat_path):
             self.embed_mat = pickle.load(open(self.mat_path, "rb"))
 

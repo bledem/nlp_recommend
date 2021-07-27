@@ -1,6 +1,7 @@
 from transformers.utils import logging
 from nlp_recommend.utils.clean_data import format_text
 from nlp_recommend.utils.clean_data import clean_beginning
+from nlp_recommend.const import DATASET_PATH, ORG_TXT_DIR
 
 import pandas as pd
 import random
@@ -9,9 +10,6 @@ import logging
 import numpy as np
 
 logger = logging.getLogger(__name__)
-
-DATASET_PATH = '/home/bettyld/PJ/Documents/NLP_PJ/nlp_recommend/dataset'
-ORG_TXT_DIR = '/home/bettyld/PJ/Documents/NLP_PJ/data/gutenberg'
 
 
 class Warper:

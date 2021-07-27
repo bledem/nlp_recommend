@@ -1,3 +1,7 @@
+"""
+Requires models or weights folder.
+"""
+
 from nlp_recommend.models.base import BaseModel
 from transformers.utils import logging
 from nlp_recommend.models import BertModel, TfIdfModel, Word2VecModel, SpacyModel

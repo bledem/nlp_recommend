@@ -5,6 +5,7 @@ import os
 
 CUR_DIR = os.path.dirname(__file__) # app folder
 PARENT_DIR = os.path.dirname(os.path.dirname(CUR_DIR)) # nlp_recommend
+MODEL_DIR = os.path.dirname(PARENT_DIR)
 
 import sys
 sys.path.insert(0, PARENT_DIR)
@@ -16,10 +17,11 @@ from nlp_recommend.models.container import Container
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 
-model_psycho = dill.load(open(os.path.join(PARENT_DIR, 'models/psychology_container.pkl'), 'rb'))
-model_philo = dill.load(open(os.path.join(PARENT_DIR, 'models/philosophy_container_light.pkl'), 'rb'))
+# model_psycho = dill.load(open(os.path.join(MODEL_DIR, 'models/psychology_container.pkl'), 'rb'))
+model_philo = dill.load(open(os.path.join(MODEL_DIR, 'models/philosophy_container_light.pkl'), 'rb'))
+model_psycho = Container(dataset='psychology')
 
-print('loaded!')
+print('loaded!', model_psycho.warper.predict(model_psycho.model, 'test'))
 
 # db = SQLAlchemy(app)
 #  db.create_all()
@@ -41,18 +43,6 @@ print('loaded!')
 #     searchs = InputAnswer.query.all()
 #     history = [{'input': s.input, 'answer':s.answer} for s in searchs]
 #     return render_template('index.html', history=history)
-
-
-# @app.route('/', methods=['POST'])
-# def receive_data():
-#     user = request.form['fname']
-#     text = request.form['thoughts']
-#     db[user] = text
-#     # do something with your text
-
-    # def __repr__(self):
-    #     return f'{self.user}: {self.input} - {self.answer}'
-
 
 # def update_history():
 #     searchs = InputAnswer.query.all()

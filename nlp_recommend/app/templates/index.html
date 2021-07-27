@@ -102,11 +102,6 @@
             {% else %}
             {% endif %} 
         </div>
-         <div class='title'> 
-            {% if philo_preds['title'] %}
-            {{ philo_preds['title'] }}
-            {% endif %}
-        </div>
 
         <div class="answer" >
             {% if philo_preds['quote'] %}
@@ -124,6 +119,11 @@
 
             {% endif %}
         </div>
+        <div class='title'> 
+            {% if philo_preds['title'] %}
+            {{ philo_preds['title'] }}
+            {% endif %}
+        </div>
 
     </section> 
     
@@ -136,11 +136,7 @@
                  {{ psycho_preds['author'] }}
                  {% else %}
                  {% endif %} 
-             </div> <div class='title'> 
-                {% if psycho_preds['title'] %}
-                {{ psycho_preds['title'] }}
-                {% endif %}
-            </div>
+             </div> 
              <div class="answer">
                 {% if psycho_preds['quote'] %}
                {{ psycho_preds['quote'] }} 
