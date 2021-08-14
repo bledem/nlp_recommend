@@ -2,10 +2,11 @@
 
 ## Getting started (with docker)
 ```
+# download models and data folder
 wget https://drive.google.com/drive/folders/1deuu3GxXJzdFgpGyzSsuvIw7VvxYupRx?usp=sharing
 wget https://drive.google.com/drive/folders/1lUuA8uWkYRFGuZwnapCh86F50sGBs0wu?usp=sharing
 docker build -t nlp_recommend_auto .
-docker run -v <path_to_models>:/app/nlp_recommend/models -v <path_to_data>:/app/data -p 5000:5000 nlp_recommend_auto
+docker run -v <path_to_models_folder>:/app/nlp_recommend/models -v <path_to_data_folder>:/app/data -p 5000:5000 nlp_recommend_auto
 ```
 ## Which data should I have locally? 
 ### For training
