@@ -17,12 +17,13 @@ from nlp_recommend.models.container import Container
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 
-# model_psycho = dill.load(open(os.path.join(MODEL_DIR, 'models/psychology_container.pkl'), 'rb'))
-model_philo = dill.load(open(os.path.join(MODEL_DIR, 'models/philosophy_container_light.pkl'), 'rb'))
-model_psycho = Container(dataset='psychology')
+print('loading', os.path.join(PARENT_DIR, 'models/psychology_container.pkl'), CUR_DIR)
+model_psycho  = dill.load(open(os.path.join(PARENT_DIR, 'models/psychology_container.pkl'), 'rb'))
+model_philo = dill.load(open(os.path.join(PARENT_DIR, 'models/philosophy_container_light.pkl'), 'rb'))
 
-print('loaded!', model_psycho.warper.predict(model_psycho.model, 'test'))
-
+print('loaded philo!', model_philo.warper.predict(model_philo.model, 'test'))
+print('loaded psycho!', model_psycho.warper.predict(model_psycho.model, 'test'))
+print('---> Go into your browser at http://0.0.0.0:5000 <---')
 # db = SQLAlchemy(app)
 #  db.create_all()
 # models = {
@@ -57,6 +58,7 @@ print('loaded!', model_psycho.warper.predict(model_psycho.model, 'test'))
 def home():
     # history = update_history()
     # return render_template('index.html', history=history)
+    print('RENDERING')
     default_preds = {'title':None, 'quote':None, 'author':None}
 
     return render_template('index.html', philo_preds=default_preds, 
@@ -106,10 +108,12 @@ def predict():
     
     #Philo
     philo_preds = get_predictions(text, model_philo)
+    print('philo_pred', philo_preds)
+    philo_preds = {key: elt.capitalize() for key, elt in philo_preds.items() if elt}
    
     #Psycho
     psycho_preds = get_predictions(text, model_psycho)
-
+    psycho_preds = {key: elt.capitalize() for key, elt in psycho_preds.items() if elt}
     # Add to database
     # to_store = InputAnswer(user=user, author=author, input=text, answer=quote)
     # db.session.add(to_store)
@@ -121,3 +125,7 @@ def predict():
                             philo_preds=philo_preds, 
                             psycho_preds=psycho_preds,
                             )#, history=history)
+
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=False)

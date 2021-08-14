@@ -3,3 +3,5 @@ nlp_recommend/dataset
 *__pycache__*
 weights
 labels
+.DS_Store
+tmp.txt

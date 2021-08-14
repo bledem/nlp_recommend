@@ -13,29 +13,34 @@ logger = logging.getLogger(__name__)
 
 
 class Warper:
-    def __init__(self, dataset='philosophy'):
+    def __init__(self, dataset, offset=2):
+        """
+        Args:
+            dataset (str): name of the dataset (should be in the parent folder's data dir as a suffix)
+            offset (int): number of sentences (before and after) we add to the prediction to add context. 
+        """
         self.dataset = dataset
         self.data_path = os.path.join(DATASET_PATH, f'{dataset}_clean.csv')
         assert os.path.exists(self.data_path)
         self.corpus = pd.read_csv(self.data_path, lineterminator='\n')
+        self.offset = offset
 
     def predict(self, model, sentence, return_index=False, topk=5):
         best_index = model.predict(sentence)
         result = self.corpus[['sentence', 'author', 'title']].iloc[best_index]
         title, sentence = result.title.values[0], result.sentence.values[0]
-        wrapped_sentence = self._wrap(title, sentence, self.dataset)
+        wrapped_sentence = self._wrap(title, sentence, self.dataset, offset=2)
         if return_index:
             result = best_index
         return result, wrapped_sentence
 
     @staticmethod
-    def _wrap(title, sentence, dataset, offset=3):
+    def _wrap(title, sentence, dataset, offset):
         res = {'before':None, 'sentence':None, 'after':None}
         trial = 5
         sentence_idx = []
         txt_path = os.path.join(
             ORG_TXT_DIR+f'_{dataset}', title.replace(' ', '_')+'.txt')
-        # print(txt_path)
         if os.path.exists(txt_path):
             with open(txt_path, 'r') as f:
                 list_lines = f.readlines()
@@ -59,3 +64,14 @@ class Warper:
                 res['sentence'] = reduced[sentence_idx]
                 res['after'] = reduced[sentence_idx+1:sentence_idx+offset]
         return res
+
+if __name__ == '__main__':
+    import dill 
+    import sys
+    from nlp_recommend import CombinedModel
+    PARENT_DIR = '/Users/10972/Documents/NLP_PJ/nlp_recommend'
+    dataset = 'psychology'
+    test_sentence = 'I have received a beautiful flower today'
+    warper = Warper(dataset=dataset)
+    model = CombinedModel(dataset=dataset)
+    warper.predict(model, test_sentence)
