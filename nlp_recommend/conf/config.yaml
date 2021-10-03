@@ -1,0 +1,14 @@
+defaults:
+  - model: bert
+  
+# dataset:
+#   max_char_per_row: 10
+#   topk: 3
+#   dataset: philosophy
+
+# model: 
+#   bert_model: 'sentence-transformers/paraphrase-mpnet-base-v2'
+
+# trainer: 
+#   batch_size: 500
+#   bert_batch_size: 8

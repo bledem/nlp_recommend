@@ -1,0 +1,8 @@
+bert:
+  _target_: nlp_recommend.models.bert.BertModel
+  topk: 3
+  dataset: philosophy
+  device: -1
+  small_memory: True
+  batch_size: 8
+  bert_model: 'sentence-transformers/paraphrase-mpnet-base-v2'

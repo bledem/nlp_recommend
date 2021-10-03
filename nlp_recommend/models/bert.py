@@ -9,24 +9,24 @@ import pickle
 import os
 import numpy as np
 from tqdm import tqdm
+import hydra
 
 from nlp_recommend.models.base import BaseModel
-from nlp_recommend.settings import TOPK, BERT_MODEL, BERT_BATCH_SIZE
-from nlp_recommend.const import PARENT_DIR
-
-MODEL_NAME = BERT_MODEL.split('/')[1] if '/' in BERT_MODEL else BERT_MODEL
+from nlp_recommend.const import PARENT_DIR, WEIGHT_DIR
 
 
 class BertModel(BaseModel):
-    def __init__(self, data=None, dataset='philosophy', model_name=BERT_MODEL, device=-1, small_memory=True, batch_size=BERT_BATCH_SIZE):
+    def __init__(self, topk, dataset, bert_model, device, small_memory, batch_size, data=None):
         super().__init__(name='Transformers')
-        self.model_name = model_name
+        self.model_name = bert_model.split('/')[1] if '/' in bert_model else bert_model
+        self.bert_model = bert_model
         self._set_device(device)
         self.small_device = 'cpu' if small_memory else self.device
         self.dataset = dataset
         self.batch_size = batch_size
+        self.topk = topk
         self.mat_path = os.path.join(
-            PARENT_DIR, 'weights', dataset, f'{MODEL_NAME}_{dataset}.pkl')
+            WEIGHT_DIR, 'training', 'weights', dataset, f'{self.model_name}_{dataset}.pkl')
         self.load_model()
         self.load()
         if not hasattr(self, 'embed_mat'):
@@ -46,8 +46,8 @@ class BertModel(BaseModel):
                 "cuda" if torch.cuda.is_available() else "cpu")
 
     def load_model(self):
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-        self.model = AutoModel.from_pretrained(self.model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.bert_model)
+        self.model = AutoModel.from_pretrained(self.bert_model)
         device = -1 if self.device == 'cpu' else 0
         self.pipeline = pipeline('feature-extraction',
                                  model=self.model, tokenizer=self.tokenizer, device=device)
@@ -86,8 +86,10 @@ class BertModel(BaseModel):
             truncation=True,
             max_length=512,
             return_tensors="pt")
+        # each of the 512 (max lenght) tokens has a 768 or 384-d vector depends on model)
+        # if this a CLS task, only the first token is required
         token_embed = torch.tensor(self.pipeline(data)).to(self.device)
-        # each of the 512 token has a 768 or 384-d vector depends on model)
+        # attention mask (simply differentiates padding from non-padding).
         attention_mask = token_dict['attention_mask'].to(self.device)
         # average pooling of masked embeddings
         mean_pooled = self.mean_pooling(
@@ -100,15 +102,23 @@ class BertModel(BaseModel):
         with open(self.mat_path, 'wb') as fw:
             pickle.dump(self.embed_mat, fw)
 
-    def predict(self, in_sentence, topk=TOPK):
+    def predict(self, in_sentence):
         input_vec = self.transform(in_sentence)
         mat = cosine_similarity(input_vec, self.embed_mat)
         # best cos sim for each token independantly
-        best_index = self.extract_best_indices(mat, topk=topk)
+        best_index = self.extract_best_indices(mat, topk=self.topk)
         return best_index
 
+@hydra.main(config_path='../conf/model', config_name='bert.yaml')
+def test_model(cfg):
+    test_sentence = 'My life'
+    bert_model = hydra.utils.instantiate(cfg.bert) 
+    prediction = bert_model.predict(test_sentence)
+    return prediction
 
 if __name__ == '__main__':
-    test_sentence = 'My life'
-    tfidf_model = BertModel()
-    tfidf_model.predict(test_sentence)
+    prediction = test_model()
+    print(prediction)
+    # test_sentence = 'My life'
+    # bert_model = BertModel()
+    # bert_model.predict(test_sentence)
