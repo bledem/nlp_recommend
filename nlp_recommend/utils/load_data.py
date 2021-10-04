@@ -1,4 +1,4 @@
-from nlp_recommend.const import DATA_PATH, PARENT_DIR
+from nlp_recommend.const import DATA_PATH, PARENT_PARENT_DIR
 from nlp_recommend.utils.clean_data import clean_beginning, clean_text, tokenizer
 from nlp_recommend.settings import MAX_CHAR_PER_ROW
 from nlp_recommend.models import SentimentCls
@@ -10,7 +10,7 @@ import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from tqdm import tqdm
 
-DATA_PATH = os.path.join(PARENT_DIR, 'dataset')
+DATA_PATH = os.path.join(PARENT_PARENT_DIR, 'training','dataset')
 
 
 def apply_voc(vocab, char):
