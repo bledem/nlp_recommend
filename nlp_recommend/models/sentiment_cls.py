@@ -9,9 +9,9 @@ from nlp_recommend.settings import BATCH_SIZE
 
 
 class SentimentCls():
-    def __init__(self, dataset='philosophy', data=None):
+    def __init__(self, dataset='philosophy', data=None, weight_dir=PARENT_DIR):
         self.label_path = os.path.join(
-            PARENT_DIR, f'labels/{dataset}/labels.pkl')
+            weight_dir, f'labels/{dataset}/labels.pkl')
         self.dataset = dataset
         self.load()
         if not hasattr(self, 'labels'):

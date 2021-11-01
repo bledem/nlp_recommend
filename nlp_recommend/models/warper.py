@@ -13,20 +13,21 @@ logger = logging.getLogger(__name__)
 
 
 class Warper:
-    def __init__(self, dataset, offset=2):
+    def __init__(self, dataset, offset=2, dataset_path=DATASET_PATH):
         """
+        Find the sentence before and after one sentence is the corpus.
         Args:
             dataset (str): name of the dataset (should be in the parent folder's data dir as a suffix)
             offset (int): number of sentences (before and after) we add to the prediction to add context. 
         """
         self.dataset = dataset
-        self.data_path = os.path.join(DATASET_PATH, f'{dataset}_clean.csv')
+        self.data_path = os.path.join(dataset_path, f'{dataset}_clean.csv')
         assert os.path.exists(self.data_path)
         self.corpus = pd.read_csv(self.data_path, lineterminator='\n')
         self.offset = offset
 
     def predict(self, model, sentence, return_index=False, topk=5):
-        best_index = model.predict(sentence)
+        best_index = model.predict(sentence, topk=topk)
         result = self.corpus[['sentence', 'author', 'title']].iloc[best_index]
         title, sentence = result.title.values[0], result.sentence.values[0]
         wrapped_sentence = self._wrap(title, sentence, self.dataset, offset=2)
@@ -66,7 +67,6 @@ class Warper:
         return res
 
 if __name__ == '__main__':
-    import dill 
     import sys
     from nlp_recommend import CombinedModel
     PARENT_DIR = '/Users/10972/Documents/NLP_PJ/nlp_recommend'

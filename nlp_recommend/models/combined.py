@@ -1,13 +1,15 @@
 """
 Requires models or weights folder.
 """
+import sys
+sys.path.insert(0, '/home/bettyld/PJ/Documents/NLP_PJ/nlp_recommend')
 
 from nlp_recommend.models.base import BaseModel
 from transformers.utils import logging
 from nlp_recommend.models import BertModel, TfIdfModel, Word2VecModel, SpacyModel
 from sklearn.metrics.pairwise import cosine_similarity
 from nlp_recommend.settings import TOPK
-from nlp_recommend.const import ORG_TXT_DIR, DATASET_PATH
+from nlp_recommend.const import ORG_TXT_DIR, WEIGHT_DIR
 
 import logging
 import numpy as np
@@ -19,9 +21,11 @@ MODEL_MAP = {'bert': BertModel, 'spacy': SpacyModel,
 
 
 class CombinedModel(BaseModel):
-    def __init__(self, dataset='philosophy', models=['spacy', 'bert']):
+    def __init__(self, dataset='philosophy', weight_dir=WEIGHT_DIR, models=['spacy', 'bert']):
         self.dataset = dataset
-        self.models = {m: MODEL_MAP[m](dataset=dataset) for m in models}
+        self.weight_path = weight_dir
+        self.models = {m: MODEL_MAP[m](dataset=dataset,
+         weight_dir=weight_dir) for m in models}
         self.concat_embed()
 
     def concat_embed(self):
@@ -55,3 +59,9 @@ class CombinedModel(BaseModel):
         mat = cosine_similarity(input_vec, self.embed_mat)
         best_index = self.extract_best_indices(mat, topk=topk)
         return best_index
+
+if __name__ == '__main__':
+    DATASET = 'philosophy'
+    combined_model = CombinedModel()
+
+

@@ -9,20 +9,21 @@ from nltk.corpus import stopwords
 from nlp_recommend.utils.clean_data import tokenizer
 from nlp_recommend.models.base import BaseModel
 from nlp_recommend.settings import TOPK
-from nlp_recommend.const import PARENT_DIR
+from nlp_recommend.const import WEIGHT_DIR
 
 
 class TfIdfModel(BaseModel):
-    def __init__(self, data=None, dataset='philosophy'):
+    def __init__(self, data=None, dataset='philosophy', weight_dir=WEIGHT_DIR):
         super().__init__(name='TfIdf')
         self.dataset = dataset
+        self.weight_dir = weight_dir
         self.model_path = os.path.join(
-            PARENT_DIR, 'weights', dataset, 'tfidf_model.pkl')
+            weight_dir, 'weights', dataset, 'tfidf_model.pkl')
         self.mat_path = os.path.join(
-            PARENT_DIR, 'weights', dataset, 'tfidf_mat.pkl')
+            weight_dir, 'weights', dataset, 'tfidf_mat.pkl')
         self.load()
         if not hasattr(self, 'embed_mat') or not hasattr(self, 'model'):
-            assert data is not None, 'No cache data found, add data argument'
+            assert data is not None, f'No cache data found at {self.mat_path}, add data argument'
             self.fit_transform(data)
         assert (self.model)
 

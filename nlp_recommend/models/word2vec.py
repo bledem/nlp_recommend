@@ -6,20 +6,21 @@ import pickle
 
 from nlp_recommend.models.base import BaseModel
 from nlp_recommend.settings import TOPK
-from nlp_recommend.const import PARENT_DIR
+from nlp_recommend.const import PARENT_DIR, WEIGHT_DIR
 
 
 class Word2VecModel(BaseModel):
-    def __init__(self, data=None, dataset='philosophy', fast_complete=False):
+    def __init__(self, data=None, dataset='philosophy',
+     fast_complete=False, weight_dir=WEIGHT_DIR):
         super().__init__(name='Word2Vec')
         self.dataset = dataset
         self.fast_complete = fast_complete
         self.model_path = os.path.join(
-            PARENT_DIR, 'weights', dataset, f'w2v.model')
+            weight_dir, 'weights', dataset, f'w2v.model')
         self.model_fast_path = os.path.join(
-            PARENT_DIR, 'weights', dataset, f'w2v_fast.model')
+            weight_dir, 'weights', dataset, f'w2v_fast.model')
         self.mat_path = os.path.join(
-            PARENT_DIR, 'weights', dataset, f'w2v_mat.pkl')
+            weight_dir, 'weights', dataset, f'w2v_mat.pkl')
         self.load()
         if not hasattr(self, 'dataset') or not hasattr(self, 'model'):
             assert data is not None, 'No cache data found, add data argument'

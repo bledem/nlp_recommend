@@ -4,16 +4,16 @@ import numpy as np
 import pickle
 
 from nlp_recommend.models.base import BaseModel
-from nlp_recommend.const import PARENT_DIR
+from nlp_recommend.const import PARENT_DIR, WEIGHT_DIR
 from nlp_recommend.settings import TOPK
 
 
 class SpacyModel(BaseModel):
-    def __init__(self, data=None, dataset='philosophy'):
+    def __init__(self, data=None, dataset='philosophy', weight_dir=WEIGHT_DIR):
         super().__init__(name='Spacy')
         self.dataset = dataset
         self.mat_path = os.path.join(
-            PARENT_DIR, 'weights', dataset, 'spacy_mat.pkl')
+            weight_dir, 'weights', dataset, 'spacy_mat.pkl')
         self.load()
         if not hasattr(self, 'embed_mat'):
             print('generating embeddings...')

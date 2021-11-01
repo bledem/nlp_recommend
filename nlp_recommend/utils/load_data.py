@@ -22,16 +22,19 @@ def apply_voc(vocab, char):
 
 
 class LoadData:
-    """An iterator to load the philo corpus"""
+    """Load and Clean a DataFrame Dataset"""
 
-    def __init__(self, dataset='philosophy', cache=False,
+    def __init__(self, dataset='philosophy',
+                 cache=False, # if you have cleaned it already True
                  n_max=None,
                  random=False,
                  char_max=None,
                  remove_numbered_rows=True,
                  remove_person_row=True,
                  tokenize=True,
-                 lemmatize=True):
+                 lemmatize=True,
+                 max_prcs=6):
+        self.dataset = dataset
         self.n_max = n_max  # maximum number of row
         self.random = random
         self.char_max = char_max if char_max else MAX_CHAR_PER_ROW
@@ -39,6 +42,7 @@ class LoadData:
         self.remove_person_row = remove_person_row
         self.tokenize = tokenize
         self.lemmatize = lemmatize
+        self.max_prcs = max_prcs
         self.data_path = os.path.join(DATA_PATH, dataset+'.csv')
         self.clean_data_path = os.path.join(
             DATA_PATH, dataset+'_clean.csv')
@@ -51,40 +55,41 @@ class LoadData:
                 lambda x: eval(x))
         # Load and clean
         else:
-            self.corpus_df = self.load_data()
-            self.save_dataset()
+            print('Lod data with ``load_and_clean`` method, save the results with ``save_dataset``.')
 
-    def load_data(self):
-        df = self.load_philo()
-        df = self.clean_sentences(df)
+    def load_and_clean(self):
+        df = self._load_df()
+        print(df.columns)
+        df = self._clean_sentences(df)
         print(df.columns)
         df = df.reset_index()
-        return df
+        self.corpus_df = df
 
-    def load_philo(self):
+    def _load_df(self):
         df = pd.read_csv(self.data_path, lineterminator='\n')
         if self.random:
             df = df.sample(frac=1)
         if self.n_max:
             df = df.iloc[:self.n_max]
-        df = self.clean_corpus(df)
+        df = self._clean_corpus(df)
         return df
 
-    def clean_corpus(self, df):
-        df = self.clean_titles(df)
+    def _clean_corpus(self, df):
+        df = df.dropna(subset=['sentence'])
+        df = self._clean_titles(df)
         if self.remove_numbered_row:
-            df = self.remove_numbers(df)
+            df = self._remove_numbers(df)
         if self.remove_person_row:
-            df = self.remove_person(df)
+            df = self._remove_person(df, self.max_prcs)
         return df
 
     @staticmethod
-    def clean_titles(df):
+    def _clean_titles(df):
         pattern = re.compile(r'[\n\r\t]')
         df['title'] = df['title'].apply(lambda x: pattern.sub(' ', x))
         return df
 
-    def clean_sentences(self, df):
+    def _clean_sentences(self, df):
         print('Cleaning sentences...')
         df['sentence'] = df['sentence'].apply(clean_beginning)
         df['clean_sentence'] = df['sentence'].apply(clean_text)
@@ -95,7 +100,7 @@ class LoadData:
         df = df.loc[(df['tok_lem_sentence'].str.len() < self.char_max)]
         return df
 
-    def remove_numbers(self, df):
+    def _remove_numbers(self, df):
         print('Removing numbers...')
         df.reset_index(inplace=True)
         index_to_remove = [idx for idx, row in df.iterrows(
@@ -104,15 +109,19 @@ class LoadData:
         return df
 
     @staticmethod
-    def remove_person(df):
+    def _remove_person(df, max_prcs):
         print('Removing proper noun...', len(df))
         import spacy
-        nlp = spacy.load("en_core_web_sm")
+        try:
+            nlp = spacy.load("en_core_web_sm")
+        except OSError: #install if not already installed
+            os.system('python -m spacy download en_core_web_sm')
+            nlp = spacy.load("en_core_web_sm")
 
         list_result = []
         batchs = np.array_split(df, max(1, len(df)//BATCH_SIZE))
 
-        with ProcessPoolExecutor() as e:
+        with ProcessPoolExecutor(max_prcs) as e:
             fs = [e.submit(process_one_chunk, mini_df, nlp)
                   for mini_df in batchs]
 
@@ -126,8 +135,10 @@ class LoadData:
         df_result = df_result.drop(columns=['propn'])
         return df_result
 
-    def save_dataset(self):
-        self.corpus_df.to_csv(self.clean_data_path, index=False)
+    def save_dataset(self, path=None):
+        if not path:
+            path = self.clean_data_path
+        self.corpus_df.to_csv(path, index=False)
 
 
 def detect_propn(x, nlp):

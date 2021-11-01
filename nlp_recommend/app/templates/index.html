@@ -29,7 +29,7 @@
         <!-- <h1>Put your name and your thoughts!</h1> -->
         </p>
 
-        <section class="form" id="history">
+        <!-- <section class="form" id="history">
             <h1>Past searchs</h1>
             {% for s in history %}
             <section class="form-history"> 
@@ -47,13 +47,13 @@
              <br>  <br>
             </section>
             {% endfor %}
-            <!-- <section id="form">
+           <section id="form">
                 <ul>
                     <li> date 1</li>
                     <li> date 2</li>
-                </ul> -->
+                </ul> 
         
-        </section>
+        </section> -->
 
         
 
@@ -61,11 +61,9 @@
             <form class="input-form" method='POST' action='/'>
                 <!-- <label class="form-label" for="fname"> Your name</label><br>
                 <input class="username" type="text" name="fname" placeholder="Type your name..."><br> -->
-                <label class="form-label" for="thoughts"> What's up today? </label> <br>
+                <label class="form-label" for="thoughts"> {{ ans }} </label> <br>
                 <input class="form-control" type="textarea" name="thoughts" cols="30" rows="5", placeholder="Type your thoughts..."><br>
-
              <br>
-
             <button class="submit-btn" type="submit" >Submit</button>
 
         </form>
@@ -76,26 +74,88 @@
     <!-- <section class="empty-margin">
         <p> {{ waiting }}</p>
     </section> -->
-   <section class="result">
-       <p class="form-label" > You </p>
-        <div class="input" >
-            {% if input %}
-            {{ input }}
-            {% else %}
-            <p> I love eating carots</p>
-            {% endif %}
+    {% if input %}
+    <section class="result">
+        <p class="form-label" > You </p>
+         <div class="input" >
+             {% if input %}
+             {{ input }}
+             {% else %}
+             <p> I love eating carots</p>
+             {% endif %}
+             
+         </div> 
+      </section>
+
+
+    <div class="form-label">
+        <p class="category" > I suggest you read</p>
+        <ul>
             
-        </div> 
-     </section>
+                {% if adv_preds['recommended_title'] %}
+                <li>  {{ adv_preds['recommended_title']['title'] }} 
+                by 
+                {{ adv_preds['recommended_title']['author'] }}
+                {% else %}
+                {% endif %} 
+            </li>
+       
+            {% if philo_preds['recommended_title'] %}
+            <li> 
+            {{ philo_preds['recommended_title']['title'] }} 
+            by 
+            {{ philo_preds['recommended_title']['author'] }}
+            {% else %}
+            {% endif %} 
+        </li>
+        {% if psycho_preds['recommended_title'] %}
+        <li> 
+        {{ psycho_preds['recommended_title']['title'] }} 
+        by 
+        {{ psycho_preds['recommended_title']['author'] }}
+        {% else %}
+        {% endif %} 
+    </li>
+
+</ul>
+    </div>
+
+
+
      <section class="result">
 
         <div class="form-label">
-            <p class="category" > Philosophy </p>
+           <p class="category" > What are the adventure books say about that..?</p>
 
-            {% if philo_preds['author'] %}
-            {{ philo_preds['author'] }}
-            {% else %}
-            {% endif %} 
+        </div> 
+        <div class="answer">
+           {% if adv_preds['quote'] %}
+          {{ adv_preds['quote'] }} 
+          {% else %}
+           <p> That's very good thing my dear</p>
+           {% endif %}
+       </div>
+
+        <div class="answer-context" >
+            {% if adv_preds['quote'] %}
+            {{ adv_preds['before'] }}
+           <div class='quote'>  {{ adv_preds['quote'] }} </div>
+            {{ adv_preds['after'] }}
+            {% endif %}
+        </div>
+        <div class='title'> 
+            {% if adv_preds['title'] %}
+            {{ adv_preds['title'] }},   {{ adv_preds['author'] }}
+            {% endif %}
+        </div>
+    </section> 
+
+
+     <section class="result">
+
+        <div class="form-label">
+            <p class="category" > What do the pilosophers think about that?</p>
+
         </div>
 
         <div class="answer" >
@@ -116,7 +176,7 @@
         </div>
         <div class='title'> 
             {% if philo_preds['title'] %}
-            {{ philo_preds['title'] }}
+            {{ philo_preds['title'] }}, {{ philo_preds['author'] }}
             {% endif %}
         </div>
 
@@ -125,12 +185,8 @@
         <section class="result">
 
              <div class="form-label">
-                <p class="category" > Psychology </p>
+                <p class="category" > What do the therapists think about that?</p>
 
-                 {% if psycho_preds['author'] %}
-                 {{ psycho_preds['author'] }}
-                 {% else %}
-                 {% endif %} 
              </div> 
              <div class="answer">
                 {% if psycho_preds['quote'] %}
@@ -149,12 +205,12 @@
              </div>
              <div class='title'> 
                  {% if psycho_preds['title'] %}
-                 {{ psycho_preds['title'] }}
+                 {{ psycho_preds['title'] }},  {{ psycho_preds['author'] }}
                  {% endif %}
              </div>
          </section> 
     
-
+         {% endif %}
 </body>
 <footer id="main-footer">
 <p>Copyright &copy; 2021 Monkey and the mind, Betty Le Dem</p></footer>
