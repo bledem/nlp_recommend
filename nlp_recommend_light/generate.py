@@ -28,7 +28,6 @@ def main(save_at, dataset, weight_dir, dataset_path, light='no'):
 if __name__ == '__main__':
 
     weight_dir = '/Users/10972/Documents/NLP_PJ/training'
-    weight_dir = '/app/training'
     dataset_path = os.path.join(weight_dir, 'dataset')
     save_dir = os.path.join(weight_dir, 'models')
 

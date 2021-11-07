@@ -3,31 +3,23 @@ from flask_sqlalchemy import SQLAlchemy
 import dill
 import os
 from transformers import pipeline, Conversation
-
-
 import sys
-sys.path.insert(0, '/home/bettyld/PJ/Documents/NLP_PJ/nlp_recommend')
 
 CUR_DIR = os.path.dirname(__file__) # app folder
 PARENT_DIR = os.path.dirname(os.path.dirname(CUR_DIR)) # nlp_recommend
-MODEL_DIR = os.path.dirname(PARENT_DIR)
-
-PARENT_DIR = '/home/bettyld/PJ/Documents/NLP_PJ/training'
-
-import sys
+MODEL_DIR = os.path.join(os.path.dirname(PARENT_DIR), 'training')
 sys.path.insert(0, PARENT_DIR)
 
-from nlp_recommend.models.container import Container
 from nlp_recommend.utils.utils import rerank
 
 # start flask
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 
-print('loading', os.path.join(PARENT_DIR, 'models/psychology_container.pkl'), CUR_DIR)
-model_psycho  = dill.load(open(os.path.join(PARENT_DIR, 'models/psychology_container.pkl'), 'rb'))
-model_philo = dill.load(open(os.path.join(PARENT_DIR, 'models/philosophy_container_light.pkl'), 'rb'))
-model_adv = dill.load(open(os.path.join(PARENT_DIR, 'models/adventure_container_light.pkl'), 'rb'))
+print('loading', os.path.join(MODEL_DIR, 'models/psychology_container.pkl'), CUR_DIR)
+model_psycho  = dill.load(open(os.path.join(MODEL_DIR, 'models/psychology_container.pkl'), 'rb'))
+model_philo = dill.load(open(os.path.join(MODEL_DIR, 'models/philosophy_container_light.pkl'), 'rb'))
+model_adv = dill.load(open(os.path.join(MODEL_DIR, 'models/adventure_container_light.pkl'), 'rb'))
 # conversational_pipeline = pipeline("conversational")
 # conv = Conversation("Hey what's up?")
 # conversational_pipeline([conv])

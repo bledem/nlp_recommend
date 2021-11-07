@@ -1,4 +1,5 @@
-FROM huggingface/transformers-pytorch-gpu:latest
+# FROM huggingface/transformers-pytorch-gpu:latest
+FROM python:3.8-slim
 
 # We copy just the requirements.txt first to leverage Docker cache
 
@@ -13,9 +14,9 @@ RUN pip3 install numpy
 RUN pip3 install pandas 
 RUN pip3 install scipy
 
-COPY ./requirements_docker.txt requirements_docker.txt
+COPY ./requirements_docker_dummy.txt requirements_docker_dummy.txt
 
-RUN pip install --no-cache-dir -r requirements_docker.txt
+RUN pip install --no-cache-dir -r requirements_docker_dummy.txt
 
 WORKDIR /app/nlp_recommend
 
@@ -24,7 +25,7 @@ COPY nlp_recommend ./nlp_recommend
 ARG FLASK_ENV="developpment"
 
 ENV FLASK_ENV="${FLASK_ENV}" \
-    FLASK_APP="nlp_recommend/app/webapp_light" \
+    FLASK_APP="nlp_recommend/app/app_light" \
     LC_ALL=C.UTF-8 \
     LANG=C.UTF-8
 

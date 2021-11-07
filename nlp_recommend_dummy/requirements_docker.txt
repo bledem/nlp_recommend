@@ -3,7 +3,6 @@ async-generator==1.10
 attrs==21.2.0
 autopep8==1.5.7
 backcall==0.2.0
-beautifulsoup4==4.9.3
 bleach==3.3.0
 catalogue==2.0.4
 certifi==2021.5.30
@@ -20,7 +19,6 @@ filelock==3.0.12
 flask-sqlalchemy==2.5.1
 Flask==2.0.1
 greenlet==1.1.0
-huggingface-hub==0.0.12
 itsdangerous==2.0.1
 jedi==0.18.0
 Jinja2==3.0.1
@@ -30,8 +28,6 @@ MarkupSafe==2.0.1
 mistune==0.8.4
 murmurhash==1.0.5
 nest-asyncio==1.5.1
-nltk==3.6.2
-notebook==6.4.0
 numpy
 packaging==21.0
 pandocfilters==1.4.3
@@ -47,7 +43,6 @@ prompt-toolkit==3.0.19
 ptyprocess==0.7.0
 pycodestyle==2.7.0
 pycparser==2.20
-pydantic==1.8.2
 Pygments==2.9.0
 pyparsing==2.4.7
 pyrsistent==0.18.0
@@ -59,7 +54,6 @@ regex==2021.7.6
 requests==2.25.1
 sacremoses==0.0.45
 Send2Trash==1.7.1
-sentence-transformers==2.0.0
 sentencepiece==0.1.96
 six==1.16.0
 soupsieve==2.2.1
@@ -80,8 +74,3 @@ wasabi==0.8.2
 wcwidth==0.2.5
 webencodings==0.5.1
 Werkzeug==2.0.1
-scikit-learn==0.23.2
-gensim==4.0.1
-pandas
-spacy==3.1.0
-spacy-legacy==3.0.8

@@ -9,7 +9,7 @@ import pickle
 import os
 import numpy as np
 from tqdm import tqdm
-import hydra
+# import hydra
 
 from nlp_recommend.models.base import BaseModel
 from nlp_recommend.const import PARENT_DIR, WEIGHT_DIR
@@ -149,12 +149,12 @@ class BertModel(BaseModel):
         """ """
 
 
-@hydra.main(config_path='../conf/model', config_name='bert.yaml')
-def test_model(cfg):
-    test_sentence = 'My life'
-    bert_model = hydra.utils.instantiate(cfg.bert) 
-    prediction = bert_model.predict(test_sentence)
-    return prediction
+# @hydra.main(config_path='../conf/model', config_name='bert.yaml')
+# def test_model(cfg):
+#     test_sentence = 'My life'
+#     bert_model = hydra.utils.instantiate(cfg.bert) 
+#     prediction = bert_model.predict(test_sentence)
+#     return prediction
 
 if __name__ == '__main__':
     # prediction = test_model()
