@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, jsonify
 # from flask_sqlalchemy import SQLAlchemy
 import dill
 import os
@@ -7,19 +7,21 @@ import sys
 
 CUR_DIR = os.path.dirname(__file__) # app folder
 PARENT_DIR = os.path.dirname(os.path.dirname(CUR_DIR)) # nlp_recommend
-MODEL_DIR = os.path.join(os.path.dirname(PARENT_DIR), 'training')
+MODEL_DIR = os.path.join(os.path.dirname(os.path.dirname(PARENT_DIR)), 'training')
 
 sys.path.insert(0, PARENT_DIR)
 
-# from nlp_recommend.utils.utils import rerank
+from nlp_recommend.utils.utils import rerank
 
 # start flask
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 
-# print('loading', os.path.join(MODEL_DIR, 'models/psychology_container.pkl'), CUR_DIR)
-model_psycho = dill.load(open(os.path.join(MODEL_DIR, 'models/adventure_container_verylight.pkl'), 'rb'))
+print('loading', os.path.join(MODEL_DIR, 'models/psychology_container.pkl'), CUR_DIR)
+model_psycho  = dill.load(open(os.path.join(MODEL_DIR, 'models/psychology_container_verylight.pkl'), 'rb'))
 model_philo = model_adv = model_psycho
+# model_philo = dill.load(open(os.path.join(MODEL_DIR, 'models/philosophy_container_verylight.pkl'), 'rb'))
+# model_adv = dill.load(open(os.path.join(MODEL_DIR, 'models/adventure_container_verylight.pkl'), 'rb'))
 
 # conversational_pipeline = pipeline("conversational")
 # conv = Conversation("Hey what's up?")
@@ -73,6 +75,34 @@ def home():
 #     history = [{'input': s.input, 'answer':s.answer} for s in searchs]
 #     return render_template('index.html', history=history)
 
+
+def parse_preds(result, warped):
+    pred = {'title':None, 'quote':None, 'author':None}
+    if len(result)>0:
+            pred['title'] = result.title.values[0]
+            pred['quote'] = result.sentence.values[0]
+            pred['author']= result.author.values[0]
+            if warped['before'] is not None or warped['after'] is not None:
+                # print('DEBUG', warped['before'][0:5])
+                pred['before'] = ' .'.join(warped['before'])
+                pred['after'] = ' .'.join(warped['after'])
+    return pred
+
+def get_predictions(text, container, topk=5):
+    best_index, warped_dict = container.warper.predict(
+        container.model, text, return_index=True, topk=topk)
+    best_index, sentiment = container.cls.match_filter(text, best_index)
+    result = container.warper.corpus[['sentence', 'author', 'title']].iloc[best_index]
+    print('result', result)
+    preds = parse_preds(result, warped_dict)
+    title_preds = {}
+    if len(result)>0:
+        title_preds['title'] = rerank(result['title'].values)[0]
+        print('debug title preds', title_preds)
+        title_preds['author'] = result.loc[result.title == title_preds['title'],
+                                         'author'].values[0]
+    return preds, title_preds
+
 @app.route('/', methods=['POST'])
 def predict():
     """
@@ -86,6 +116,7 @@ def predict():
     text = request.form['thoughts']
     # user = str(user).capitalize()
     # Predict books
+    models = {'philo': model_philo, 'psycho': model_psycho, 'adv': model_adv}
     preds = {}
     for name, model in models.items():
         preds_raw, title_preds = get_predictions(text, model)
@@ -104,11 +135,11 @@ def predict():
     # db.session.commit()
     # # load database
     # history = update_history()
-    return jsonify(input=text, 
+    return jsonify('index.html', ans=ans, input=text, 
                             philo_preds=preds['philo'], 
                             psycho_preds=preds['psycho'],
                             adv_preds=preds['adv'])
-
+                            #, history=history)
 
 
 if __name__ == '__main__':

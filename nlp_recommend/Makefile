@@ -1,7 +1,7 @@
 
 IMAGE_NAME=nlp_recommend
-TAG_NAME=15ed57f
-CONTAINER_NAME=bledem/nlp_recommend
+TAG_NAME=8cee4b8
+CONTAINER_NAME=nlp_recommend_20211003$(FLASK_APP)
 
 WEIGHT_DIR=/Users/10972/Documents/NLP_PJ
 APP_PATH=nlp_recommend/app
@@ -9,6 +9,7 @@ FLASK_APP=$(APP_PATH)/app_light.py
 
 .PHONY: docker-build docker-run clean-container clean
 
+# Command for dockerization
 # Command for dockerization
 docker-build:
 	docker build -t $(CONTAINER_NAME):$(TAG_NAME) .

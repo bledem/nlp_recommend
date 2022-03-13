@@ -74,3 +74,56 @@ docker run -v /Users/10972/Documents/NLP_PJ/models:/app/nlp_recommend/models -v 
 ```
 docker run -it -v /Users/10972/Documents/NLP_PJ/models:/app/nlp_recommend/models -v /Users/10972/Documents/NLP_PJ/data:/app/data -p 5000:5000 nlp_recommend_auto /bin/bash
 ```
+
+### Add a new category
+Our model currently contains three modules:
+- Vector embedding (txt->vec)
+- Sentiment classification
+- Warper (retrieve the original quote and paragraph)
+
+Updated flow:
+```python
+test_sentence = 'My life'
+genres = ['philosophy', 'adventure', 'psychology']
+for dataset in genres:
+
+    dataset = 'adventure'
+    # create clean and tagged dataset. 
+        corpus = LoadData(dataset=dataset, # n_max=50,
+                  random=False, remove_numbered_rows=True, cache=False)
+    # create _clean_sent.csv dataset with sentiment label 
+    cls = SentimentCls(dataset=dataset, weight_dir=WEIGHT_DIR)
+
+    # create model
+    data_path = f'/Users/10972/Documents/NLP_PJ/training/dataset/{dataset}_clean.csv'
+        clean_df = pd.read_csv(data_path)
+        model = SpacyModel(dataset=dataset, data=clean_df.sentence.values)
+        model.save_embeddings()
+
+    # prediction
+    warper = Warper(dataset=dataset)
+    model = SpacyModel(dataset=dataset)
+    warper.predict(model, test_sentence)
+    print(wrapped_sentence)
+```
+
+Datasets:
+- <dataset>_clean.csv 
+Index(['title', 'author', 'sentence', 'sent_idx', 'valid',
+       'small_clean_sentence', 'clean_sentence', 'tok_lem_sentence',
+       'org_idx'],
+      dtype='object')
+>> Valid + unvalid data in the dataframe. The ``index`` columns corresponds to the original valid+non valid sentences. We use tagged for Warper only. 
+- <dataset>_tagged.csv 
+Index(['title', 'author', 'sentence', 'sent_idx', 'valid',
+       'small_clean_sentence', 'clean_sentence', 'tok_lem_sentence',
+       'org_idx'],
+      dtype='object')
+
+- <dataset>_clean_sent.csv  # valid sentences with sentiment
+ Index(['author', 'sentence', 'sent_idx', 'valid', 'small_clean_sentence',
+       'clean_sentence', 'tok_lem_sentence', 'org_idx', 'sentiment'],
+      dtype='object')
+
+
+See ``container`` object for serving architecture. 

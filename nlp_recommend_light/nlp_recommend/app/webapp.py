@@ -132,7 +132,6 @@ def predict():
     # db.session.commit()
     # # load database
     # history = update_history()
-    print('ebug adv', preds['adv'])
     return render_template('index.html', ans=ans, input=text, 
                             philo_preds=preds['philo'], 
                             psycho_preds=preds['psycho'],

@@ -12,15 +12,16 @@ MODEL_DIR = os.path.join(os.path.dirname(PARENT_DIR), 'training')
 sys.path.insert(0, PARENT_DIR)
 
 from nlp_recommend.utils.utils import rerank
+from nlp_recommend.models import ContainerSpacy
 
 # start flask
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 
 print('loading', os.path.join(MODEL_DIR, 'models/psychology_container.pkl'), CUR_DIR)
-model_psycho  = dill.load(open(os.path.join(MODEL_DIR, 'models/psychology_container_verylight.pkl'), 'rb'))
-model_philo = dill.load(open(os.path.join(MODEL_DIR, 'models/philosophy_container_verylight.pkl'), 'rb'))
-model_adv = dill.load(open(os.path.join(MODEL_DIR, 'models/adventure_container_verylight.pkl'), 'rb'))
+model_philo = ContainerSpacy('philosophy')
+model_psycho = ContainerSpacy('psychology', sent_model=model_philo.cls.model)
+model_adv = ContainerSpacy('adventure', sent_model=model_philo.cls.model)
 
 # conversational_pipeline = pipeline("conversational")
 # conv = Conversation("Hey what's up?")
@@ -75,25 +76,26 @@ def home():
 #     return render_template('index.html', history=history)
 
 
-def parse_preds(result, warped):
+def filter_preds(idx, warped):
     pred = {'title':None, 'quote':None, 'author':None}
-    if len(result)>0:
-            pred['title'] = result.title.values[0]
-            pred['quote'] = result.sentence.values[0]
-            pred['author']= result.author.values[0]
-            if warped['before'] is not None or warped['after'] is not None:
-                # print('DEBUG', warped['before'][0:5])
-                pred['before'] = ' .'.join(warped['before'])
-                pred['after'] = ' .'.join(warped['after'])
+    for i in idx:
+        pred['title'] = warped['sentence'][i]['title']
+        pred['before'] = ' .'.join(warped['before'][i])
+        pred['after'] = ' .'.join(warped['after'][i])
+        pred]'quote'] = warped['sentence'][i]['sentence']
+        pred['author'] = warped['sentence'][i]['author']
     return pred
 
 def get_predictions(text, container, topk=5):
-    best_index, warped_dict = container.warper.predict(
+    # quote pred
+    best_valid_index, warped_dict = container.warper.predict(
         container.model, text, return_index=True, topk=topk)
-    best_index, sentiment = container.cls.match_filter(text, best_index)
-    result = container.warper.corpus[['sentence', 'author', 'title']].iloc[best_index]
-    print('result', result)
-    preds = parse_preds(result, warped_dict)
+    best_index = container.cls.match_filter(text, best_valid_index)
+    result = container.warper.corpus[container.warper.corpus.valid][['sentence', 'author', 'title']].iloc[best_index]
+    # print('result', result)
+    filtered_idx = [i for i, elt in enumerate(best_valid_index) if elt in best_index]
+    preds = filter_preds(filtered_idx, warped_dict)
+    # title pred
     title_preds = {}
     if len(result)>0:
         title_preds['title'] = rerank(result['title'].values)[0]
@@ -134,10 +136,6 @@ def predict():
     # db.session.commit()
     # # load database
     # history = update_history()
-    return jsonify(input=text, 
-                            philo_preds=preds['philo'], 
-                            psycho_preds=preds['psycho'],
-                            adv_preds=preds['adv'])
     return render_template('index.html', ans=ans, input=text, 
                             philo_preds=preds['philo'], 
                             psycho_preds=preds['psycho'],

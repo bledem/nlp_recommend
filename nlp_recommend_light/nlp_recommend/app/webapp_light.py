@@ -7,7 +7,7 @@ import sys
 
 CUR_DIR = os.path.dirname(__file__) # app folder
 PARENT_DIR = os.path.dirname(os.path.dirname(CUR_DIR)) # nlp_recommend
-MODEL_DIR = os.path.join(os.path.dirname(PARENT_DIR), 'training')
+MODEL_DIR = os.path.join(os.path.dirname(os.path.dirname(PARENT_DIR)), 'training')
 
 sys.path.insert(0, PARENT_DIR)
 
@@ -20,6 +20,9 @@ app = Flask(__name__)
 print('loading', os.path.join(MODEL_DIR, 'models/psychology_container.pkl'), CUR_DIR)
 model_psycho  = dill.load(open(os.path.join(MODEL_DIR, 'models/psychology_container_verylight.pkl'), 'rb'))
 model_philo = model_adv = model_psycho
+dataset = 'philo'
+warper = Warper(dataset=dataset)
+model = SpacyModel(dataset=dataset)
 # model_philo = dill.load(open(os.path.join(MODEL_DIR, 'models/philosophy_container_verylight.pkl'), 'rb'))
 # model_adv = dill.load(open(os.path.join(MODEL_DIR, 'models/adventure_container_verylight.pkl'), 'rb'))
 

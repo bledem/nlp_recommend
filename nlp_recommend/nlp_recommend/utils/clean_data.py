@@ -3,11 +3,11 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 import re
 import nltk
-nltk.download('stopwords')
+# nltk.download('stopwords')
 
 # for tokenizer
-nltk.download('punkt')
-nltk.download('wordnet')
+# nltk.download('punkt')
+# nltk.download('wordnet')
 
 first_n_words = 200
 

@@ -7,20 +7,21 @@ import sys
 
 CUR_DIR = os.path.dirname(__file__) # app folder
 PARENT_DIR = os.path.dirname(os.path.dirname(CUR_DIR)) # nlp_recommend
-MODEL_DIR = os.path.join(os.path.dirname(PARENT_DIR), 'training')
+MODEL_DIR = os.path.join(os.path.dirname(os.path.dirname(PARENT_DIR)), 'training')
 
 sys.path.insert(0, PARENT_DIR)
 
 from nlp_recommend.utils.utils import rerank
+from nlp_recommend.models import ContainerSpacy
 
 # start flask
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
+    
 
-print('loading', os.path.join(MODEL_DIR, 'models/psychology_container.pkl'), CUR_DIR)
-model_psycho  = dill.load(open(os.path.join(MODEL_DIR, 'models/psychology_container_verylight.pkl'), 'rb'))
-model_philo = dill.load(open(os.path.join(MODEL_DIR, 'models/philosophy_container_verylight.pkl'), 'rb'))
-model_adv = dill.load(open(os.path.join(MODEL_DIR, 'models/adventure_container_verylight.pkl'), 'rb'))
+model_philo = ContainerSpacy('philosophy')
+model_psycho = ContainerSpacy('psychology')
+model_adv = ContainerSpacy('adventure')
 
 # conversational_pipeline = pipeline("conversational")
 # conv = Conversation("Hey what's up?")
@@ -88,8 +89,10 @@ def parse_preds(result, warped):
     return pred
 
 def get_predictions(text, container, topk=5):
+    print('DEBUG', container.model, text)
     best_index, warped_dict = container.warper.predict(
         container.model, text, return_index=True, topk=topk)
+    print('best_index', best_index)
     best_index, sentiment = container.cls.match_filter(text, best_index)
     result = container.warper.corpus[['sentence', 'author', 'title']].iloc[best_index]
     print('result', result)
@@ -134,6 +137,10 @@ def predict():
     # db.session.commit()
     # # load database
     # history = update_history()
+    return jsonify(input=text, 
+                            philo_preds=preds['philo'], 
+                            psycho_preds=preds['psycho'],
+                            adv_preds=preds['adv'])
     return render_template('index.html', ans=ans, input=text, 
                             philo_preds=preds['philo'], 
                             psycho_preds=preds['psycho'],
