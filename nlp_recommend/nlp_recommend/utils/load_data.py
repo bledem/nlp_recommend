@@ -1,5 +1,5 @@
 from nlp_recommend.const import DATA_PATH, PARENT_DIR
-from nlp_recommend.utils.clean_data import clean_beginning, clean_text, tokenizer
+from nlp_recommend.utils.clean_data import clean_beginning, clean_text, tokenizer, uppercase_eng
 from nlp_recommend.settings import MAX_CHAR_PER_ROW
 from nlp_recommend.models import SentimentCls
 from nlp_recommend.settings import BATCH_SIZE
@@ -90,6 +90,9 @@ class LoadData:
         return df
 
     @staticmethod
+    def _uppercase_eng(df):
+        df.sentence['sentence'].apply
+    @staticmethod
     def _clean_titles(df):
         pattern = re.compile(r'[\n\r\t]')
         df['title'] = df['title'].apply(lambda x: pattern.sub(' ', x))
@@ -97,6 +100,7 @@ class LoadData:
 
     def _clean_sentences(self, df):
         print('Cleaning sentences...')
+        df['sentence'] = df['sentence'].apply(uppercase_eng)
         df['small_clean_sentence'] = df['sentence'].apply(clean_beginning)
         df['clean_sentence'] = df['small_clean_sentence'].apply(clean_text)
         df['clean_sentence'] = df['clean_sentence'].apply(
@@ -178,9 +182,9 @@ if __name__ == '__main__':
     pd.options.display.max_colwidth = 500
 
     # create the .csv for the first time
-    corpus = LoadData(dataset=DATASET,random=False, remove_numbered_rows=True, cache=False)
+    # corpus = LoadData(dataset=DATASET,random=False, remove_numbered_rows=True, cache=False)
     # load the .csv
-    # corpus = LoadData(dataset=DATASET, cache=True) 
+    corpus = LoadData(dataset=DATASET, cache=True) 
     philo_df = corpus.corpus_df
 
     philo_df = philo_df[['sentence', 'author', 'title', 'tok_lem_sentence']]

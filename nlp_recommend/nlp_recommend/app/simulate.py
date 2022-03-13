@@ -1,35 +1,24 @@
-from flask import Flask, request, render_template
+
+import os
+from transformers import pipeline
 
 import sys
-import os 
 
 CUR_DIR = os.path.dirname(__file__) # app folder
 PARENT_DIR = os.path.dirname(os.path.dirname(CUR_DIR)) # nlp_recommend
+MODEL_DIR = os.path.join(os.path.dirname(PARENT_DIR), 'training')
 
 sys.path.insert(0, PARENT_DIR)
 
 from nlp_recommend.utils.utils import rerank
 from nlp_recommend.models import ContainerSpacy
-from nlp_recommend.const import WEIGHT_DIR
 
-# start flask
-app = Flask(__name__)
-
-model_philo = ContainerSpacy('philosophy', weight_dir=WEIGHT_DIR)
-model_psycho = ContainerSpacy('psychology', weight_dir=WEIGHT_DIR)
-model_adv = ContainerSpacy('adventure', weight_dir=WEIGHT_DIR)
-
-print('---> Go into your browser at http://0.0.0.0:5000 <---')
-
-
-@app.route('/')
-def home():
-    default_preds = {'title':None, 'quote':None, 'author':None}
-    default_ans = 'Something like'
-    return render_template('index.html', philo_preds=default_preds, 
-                            psycho_preds=default_preds, adv_preds=default_preds, ans=default_ans)
-
-
+class Models:
+    # sent_model = pipeline('sentiment-analysis', model='distilbert-base-uncased') #loading hugging face pipeline
+    model_philo = ContainerSpacy('philosophy')
+    model_psycho = ContainerSpacy('psychology')
+    model_adv = ContainerSpacy('adventure')
+    
 def filter_preds(idx, warped) -> list[dict]:
     res = []
     for i in idx:
@@ -50,6 +39,7 @@ def get_predictions(text, container, topk=5):
     print('best_index', best_valid_index, 'to', best_index)
     result = container.warper.corpus.loc[best_index.org_idx, ['sentence', 'author', 'title']]
     print('result', result)
+    # 
     filtered_idx = [i for i, elt in enumerate(best_valid_index) if elt in best_index.index]
     preds = filter_preds(filtered_idx, warped_dict)
     # title pred
@@ -61,38 +51,37 @@ def get_predictions(text, container, topk=5):
                                          'author'].values[0]
     return preds, title_preds
 
-def clean_sentence(text):
-    text = text[0].upper() + text[1:]
-    if text[-1] != '.':
-        text += '.'
-    return text
-
-@app.route('/', methods=['POST'])
-def predict():
+def predict(text, models):
     """
     To make a prediction on one sample of the text
     satire or fake news
     :return: a result of prediction in HTML page
     """
     # Receive
-    text = request.form['thoughts']
     # Predict books
-    models = {'philo': model_philo, 'psycho': model_psycho, 'adv': model_adv}
+    models = {'philo': models.model_philo, 'psycho': models.model_psycho, 'adv': models.model_adv}
     preds = {}
     for name, model in models.items():
         preds_raw, title_preds = get_predictions(text, model)
-        preds[name] = {key: clean_sentence(elt) for key, elt in preds_raw[0].items() if elt}
+        preds[name] = {key: elt.capitalize() for key, elt in preds_raw[0].items() if elt}
         print('title_preds', title_preds)
         preds[name]['recommended_title'] = title_preds
 
-    ans = 'Something Like'
+    # Answer the user
+    # conv.add_user_input(text)
+    # ans = conversational_pipeline([conv]).generated_responses[-1]
+    ans = 'I see, but what do you mean by that?'
 
-    return render_template('index.html', ans=ans, input=text, 
-                            philo_preds=preds['philo'], 
-                            psycho_preds=preds['psycho'],
-                            adv_preds=preds['adv'])
-                            #, history=history)
+    # Add to database
+    # to_store = InputAnswer(user=user, author=author, input=text, answer=quote)
+    # db.session.add(to_store)
+    # db.session.commit()
+    # # load database
+    # history = update_history()
+    
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5001, debug=True, use_reloader=False)
+    models = Models()
+    text = 'I am at home'
+    predict(text, models)

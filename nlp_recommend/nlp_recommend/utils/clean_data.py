@@ -80,3 +80,6 @@ def format_text(list_lines):
     reduced = [sentence.capitalize().strip()
                for sentence in reduced if not pattern.search(sentence)]
     return reduced
+
+def uppercase_eng(text):
+    return text.replace(' i ', ' I ')

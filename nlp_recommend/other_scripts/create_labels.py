@@ -9,7 +9,7 @@ if __name__ == '__main__':
     # corpus = LoadData(dataset=dataset, # n_max=50,
     #                   random=False, remove_numbered_rows=True, cache=True)
     corpus = LoadData(dataset=dataset,random=False, remove_numbered_rows=True, cache=True)
-
+    
     # df = corpus.corpus_df
     # cls = SentimentCls(dataset=dataset,data=df, weight_dir=WEIGHT_DIR)
     cls = SentimentCls(dataset=dataset, weight_dir=WEIGHT_DIR)
