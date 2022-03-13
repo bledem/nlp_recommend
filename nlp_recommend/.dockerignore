@@ -1,0 +1,6 @@
+.git
+.cache
+weights
+labels
+notebooks
+nlp_recommend/utils/*_data.py

@@ -3,30 +3,18 @@
 ## Getting started (with docker)
 ```
 # download models and data folder
-wget https://drive.google.com/drive/folders/1deuu3GxXJzdFgpGyzSsuvIw7VvxYupRx?usp=sharing
-wget https://drive.google.com/drive/folders/1lUuA8uWkYRFGuZwnapCh86F50sGBs0wu?usp=sharing
+# copy this folder on your computer as <path_to_weights_folder>
+# it contains a dataset and a weight folder. 
+wget https://drive.google.com/drive/folders/1qsQ-QNN4gD_JoI2q4Q0Ew68LzKNdJyRH?usp=sharing
 docker build -t nlp_recommend_auto .
-docker run -v <path_to_models_folder>:/app/nlp_recommend/models -v <path_to_data_folder>:/app/data -p 5000:5000 nlp_recommend_auto
+docker run -v <path_to_weights_folder>:/training/ -p 5000:5000 nlp_recommend_auto
 ```
-## Which data should I have locally? 
-### For training
-Download meta data
+
+Debug:
 ```
-- data (for context in Warper)
-    - gutenberg_philosophy
-    - gutenberg_psychology
-- nlp_recommend
-    - dataset
-    - models
-    - labels
-    - weights 
+docker run -it -v <path_to_weights_folder>:/training -p 5000:5000 -e FLASK_APP="nlp_recommend/app/webapp_light" nlp_recommend_auto bash
 ```
-### For inference
-Folder architecture:
-- data (for context in Warper)
-    - gutenberg_philosophy
-    - gutenberg_psychology
-- models
+
 
 ## Getting started (without docker) 
 ### 1. Set up your environment
@@ -38,16 +26,9 @@ pip install -r requirements.txt
 ```
 ### 2) Download the weights
 ```
-wget https://drive.google.com/drive/folders/1deuu3GxXJzdFgpGyzSsuvIw7VvxYupRx?usp=sharing
-wget https://drive.google.com/drive/folders/1lUuA8uWkYRFGuZwnapCh86F50sGBs0wu?usp=sharing
+wget https://drive.google.com/drive/folders/1qsQ-QNN4gD_JoI2q4Q0Ew68LzKNdJyRH?usp=sharing
 ```
-Check you downloaded the models/ data folders. 
-Data should be in parent folder and models inside nlp_recommend
 
-- data
-- nlp_recommend
-    - nlp_recommend
-    - models
 
 ### 3) Download the weights
 Run the application

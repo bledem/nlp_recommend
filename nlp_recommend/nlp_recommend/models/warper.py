@@ -1,56 +1,13 @@
 from transformers.utils import logging
-from nlp_recommend.utils.clean_data import format_text
-from nlp_recommend.utils.clean_data import clean_beginning
-from nlp_recommend.const import WEIGHT_DIR, ORG_TXT_DIR
+from nlp_recommend.const import WEIGHT_DIR
 
 import pandas as pd
-import random
 import os
 import logging
 import numpy as np
 
 logger = logging.getLogger(__name__)
 
-def warp(title, sentence, dataset, offset):
-    """[summary]
-
-    Args:
-        title ([type]): [description]
-        sentence ([type]): [description]
-        dataset ([type]): [description]
-        offset ([type]): [description]
-
-    Returns:
-        [dict]: dict with previous and forward sentences that are follows the input sentence.
-    """
-    res = {'before':None, 'sentence':None, 'after':None}
-    trial = 5
-    sentence_idx = []
-    txt_path = os.path.join(
-        ORG_TXT_DIR+f'_{dataset}', title.replace(' ', '_')+'.txt')
-    if os.path.exists(txt_path):
-        with open(txt_path, 'r') as f:
-            list_lines = f.readlines()
-            if len(list_lines) == 1:
-                reduced = format_text(list_lines)
-            else:
-                reduced = list_lines
-                reduced = [s.strip() for s in reduced]
-        reduced = clean_beginning(' '.join(reduced)).split('. ')
-        # Looking for the sentence among the corpus
-        # The sentence has been cleaned so it does not
-        # match perfectly the original corpus
-        delimiter = len(sentence) // trial
-        while len(sentence_idx) != 1 and trial > 0:
-            sentence_idx = [index for index, s in enumerate(
-                reduced) if sentence[:delimiter*trial] in s]
-            trial -= 1
-        if len(sentence_idx) == 1:
-            sentence_idx = sentence_idx[0]
-            res['before'] = reduced[sentence_idx-offset:sentence_idx]
-            res['sentence'] = reduced[sentence_idx]
-            res['after'] = reduced[sentence_idx+1:sentence_idx+offset]
-    return res
 
 class Warper:
     def __init__(self, dataset, offset=2, dataset_path=WEIGHT_DIR):

@@ -12,7 +12,6 @@ RUN pip install --upgrade pip setuptools wheel
 RUN pip3 install numpy
 RUN pip3 install pandas 
 RUN pip3 install scipy
-
 COPY ./requirements_docker.txt requirements_docker.txt
 
 RUN pip install --no-cache-dir -r requirements_docker.txt
@@ -26,7 +25,8 @@ ARG FLASK_ENV="developpment"
 ENV FLASK_ENV="${FLASK_ENV}" \
     FLASK_APP="nlp_recommend/app/webapp_light" \
     LC_ALL=C.UTF-8 \
-    LANG=C.UTF-8
+    LANG=C.UTF-8 \ 
+    PYTHON_PATH="/app/nlp_recommend"
 
-CMD ["flask", "run", "--host=0.0.0.0", "-p", "5000"]
-
+# CMD ["flask", "run", "--host=0.0.0.0", "-p", "5000"]
+CMD ["python3", "nlp_recommend/app/webapp_light.py", "--data_path", "/training"]

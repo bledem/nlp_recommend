@@ -1,5 +1,5 @@
 
-from nlp_recommend.models import BertModel, SpacyModel, CombinedModel, SentimentCls, Warper, TfIdfModel
+from nlp_recommend.models import BertModel, SpacyModel, SentimentCls, Warper
 from nlp_recommend.const import WEIGHT_DIR
 
 class ContainerBase():
@@ -14,20 +14,20 @@ class ContainerBase():
         self.cls = SentimentCls(dataset=dataset, weight_dir=weight_dir, model=sent_model)
         self.warper = Warper(dataset=dataset, dataset_path=weight_dir)
         
-class Container(ContainerBase):
-    def __init__(self, dataset, weight_dir, sent_model):
-        super().__init__(dataset, weight_dir, sent_model)
-        self.model = CombinedModel(dataset=dataset, weight_dir=weight_dir)
+# class Container(ContainerBase):
+#     def __init__(self, dataset, weight_dir, sent_model):
+#         super().__init__(dataset, weight_dir, sent_model)
+#         self.model = CombinedModel(dataset=dataset, weight_dir=weight_dir)
         
 class ContainerLight(ContainerBase):
     def __init__(self, dataset, weight_dir=WEIGHT_DIR, sent_model=None):
         super().__init__(dataset, weight_dir, sent_model)
         self.model = BertModel(dataset=dataset, weight_dir=weight_dir)
 
-class ContainerVeryLight(ContainerBase):
-    def __init__(self, dataset, weight_dir=WEIGHT_DIR, sent_model=None):
-        super().__init__(dataset, weight_dir, sent_model)
-        self.model = TfIdfModel(dataset=dataset, weight_dir=weight_dir)
+# class ContainerVeryLight(ContainerBase):
+#     def __init__(self, dataset, weight_dir=WEIGHT_DIR, sent_model=None):
+#         super().__init__(dataset, weight_dir, sent_model)
+#         self.model = TfIdfModel(dataset=dataset, weight_dir=weight_dir)
 
 class ContainerSpacy(ContainerBase):
     def __init__(self, dataset, weight_dir=WEIGHT_DIR, sent_model=None):
