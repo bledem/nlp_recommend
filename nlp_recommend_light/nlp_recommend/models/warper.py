@@ -28,16 +28,16 @@ class Warper:
         result = self.corpus[self.corpus.valid].iloc[best_valid_index] # -> df( topk rows x 9 columns )
         # top 1 title and sentence
         # title, sentence = result.title.values[0], result.sentence.values[0]
-        wrapped_sentence = self.warp(result, offset=2)
+        wrapped_sentence = self.warp(result)
         if return_index:
             result = best_valid_index
         return result, wrapped_sentence
 
-    def warp(self, result, offset):
+    def warp(self, result):
         res = {'before':[], 'sentence':[], 'after':[]}
         for _, row in result.iterrows():
-            before_idx = [row.org_idx-i for i in range(1, offset)]
-            after_idx = [row.org_idx+i for i in range(1, offset)]
+            before_idx = [row.org_idx-i for i in range(1, self.offset)]
+            after_idx = [row.org_idx+i for i in range(1, self.offset)]
             res['before'].append(self.corpus.loc[self.corpus.org_idx.isin(before_idx), ['sentence', 'title', 'author']])
             res['after'].append(self.corpus.loc[self.corpus.org_idx.isin(after_idx), ['sentence', 'title', 'author']])
             res['sentence'].append(row[['sentence', 'title', 'author']])

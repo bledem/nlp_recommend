@@ -52,6 +52,13 @@ If you have 32Gb RAM Memory, you can try to load ``philosophy_container.pkl`` in
 docker run -v /Users/10972/Documents/NLP_PJ/models:/app/nlp_recommend/models -v /Users/10972/Documents/NLP_PJ/data:/app/data -p 5000:5000 nlp_recommend_auto
 ```
 ### Auto debug
+
+Image size: 1.28Gb. CPU usage 5Gb.
+
 ```
-docker run -it -v /Users/10972/Documents/NLP_PJ/models:/app/nlp_recommend/models -v /Users/10972/Documents/NLP_PJ/data:/app/data -p 5000:5000 nlp_recommend_auto /bin/bash
+make docker-build
+make docker-run-auto 
 ```
+
+Inference with spacy eng large model. 
+

@@ -12,7 +12,7 @@ class ContainerBase():
         """
         self.weight_dir = weight_dir
         self.cls = SentimentCls(dataset=dataset, weight_dir=weight_dir, model=sent_model)
-        self.warper = Warper(dataset=dataset, dataset_path=weight_dir)
+        self.warper = Warper(dataset=dataset, dataset_path=weight_dir, offset=3)
         
 class ContainerSpacy(ContainerBase):
     def __init__(self, dataset, weight_dir=WEIGHT_DIR, sent_model=None):
