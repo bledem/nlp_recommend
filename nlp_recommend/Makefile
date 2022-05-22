@@ -1,24 +1,25 @@
 
 IMAGE_NAME=nlp_recommend
-TAG_NAME=8cee4b8
-CONTAINER_NAME=nlp_recommend_20211003$(FLASK_APP)
+TAG_NAME=testtag
+CONTAINER_NAME=nlp_recommend_app
 
 WEIGHT_DIR=/Users/10972/Documents/NLP_PJ
 APP_PATH=nlp_recommend/app
-FLASK_APP=$(APP_PATH)/app_light.py
+FLASK_APP=$(APP_PATH)/webapp_light.py
 
 .PHONY: docker-build docker-run clean-container clean
 
 # Command for dockerization
-# Command for dockerization
 docker-build:
-	docker build -t $(CONTAINER_NAME):$(TAG_NAME) .
+	docker build -t $(IMAGE_NAME):$(TAG_NAME) .
 
 docker-run-bash-debug:
-	docker run --env-file $(ENV_FILE) -it -v $(DATA_FOLDER):/data -v --link=$(DB_LINK) $(CONTAINER_NAME):$(TAG_NAME) /bin/bash
+	docker run --rm -it -v $(WEIGHT_DIR)/training:/app/training -p 5000:5000 --name=$(CONTAINER_NAME) $(IMAGE_NAME):$(TAG_NAME) /bin/bash
+# docker run --env-file $(ENV_FILE) -it -v $(DATA_FOLDER):/data -v $(CONTAINER_NAME):$(TAG_NAME) /bin/bash
 
 docker-run-auto:
-	docker run -v ${WEIGHT_DIR}/training:/app/training -p 5000:5000 --env FLASK_APP=$(FLASK_APP) $(CONTAINER_NAME):$(TAG_NAME)
+	docker run --rm -it -v $(WEIGHT_DIR)/training:/app/training -p 5000:5000 --name=$(CONTAINER_NAME) --env FLASK_APP=$(FLASK_APP) $(IMAGE_NAME):$(TAG_NAME) 
+# python app/webapp_light.py
 # docker run -p 5000:5000 --env FLASK_APP=$(FLASK_APP) $(CONTAINER_NAME):$(TAG_NAME)
 
 docker-run-auto-light:

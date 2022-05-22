@@ -5,7 +5,7 @@ import pickle
 from numpy import linalg as LA
 
 from nlp_recommend.models.base import BaseModel
-from nlp_recommend.const import WEIGHT_DIR
+from nlp_recommend.const import PARENT_DIR, WEIGHT_DIR
 from nlp_recommend.settings import TOPK
 
 class SpacyModel(BaseModel):

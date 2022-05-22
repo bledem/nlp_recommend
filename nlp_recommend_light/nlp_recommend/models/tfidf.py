@@ -55,9 +55,13 @@ class TfIdfModel(BaseModel):
         with open(self.model_path, 'wb') as fw:
             pickle.dump(self.model, fw)
 
-    def predict(self, in_sentence, topk=TOPK):
+    def predict_vec(self, in_sentence):
         tokens = [str(tok) for tok in tokenizer(in_sentence)]
         vec = self.model.transform(tokens)
+        return vec
+
+    def predict(self, in_sentence, topk=TOPK):
+        vec = self.predict_vec(in_sentence)
         # Create list with similarity between two sentence
         mat = cosine_similarity(vec, self.embed_mat)
         best_index = self.extract_best_indices(mat, topk=topk)

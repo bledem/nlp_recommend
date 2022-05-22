@@ -1,46 +1,62 @@
-from transformers import pipeline
-import pickle
+
 import os
 import numpy as np
 from tqdm import tqdm
-
-from nlp_recommend.const import PARENT_DIR
-from nlp_recommend.settings import BATCH_SIZE
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import pandas as pd 
+from nlp_recommend.const import WEIGHT_DIR
+from nlp_recommend.settings import BERT_BATCH_SIZE
 
 
 class SentimentCls():
-    def __init__(self, dataset='philosophy', data=None, weight_dir=PARENT_DIR):
+    def __init__(self, model=None, dataset='philosophy', data=None, weight_dir=WEIGHT_DIR, sentence_col='sentence', n_workers=5):
         self.label_path = os.path.join(
-            weight_dir, f'labels/{dataset}/labels.pkl')
+            weight_dir, f'dataset/{dataset}_clean_sent.csv')
         self.dataset = dataset
-        self.load()
-        if not hasattr(self, 'labels'):
-            assert data is not None, 'No cache data found, add data argument'
-            self.fit(data)
+        self.sentence_col = sentence_col
+        self.n_workers = n_workers
+        self.model = model
+        if os.path.exists(self.label_path):
+            self.labels =  pd.read_csv(self.label_path)
+        elif data is not None: # create self.labels as original data + sentiment
+            if 'sentiment' not in data.columns:
+                self.fit(data)
+                self.save()
 
     def load(self):
-        self.model = pipeline('sentiment-analysis')
         if os.path.exists(self.label_path):
-            self.labels = pickle.load(open(self.label_path, 'rb'))
+            self.labels = pd.read_csv(self.label_path)
 
+    def predict_sentiment(self, data):
+        data['sentiment'] = data[self.sentence_col].apply(lambda x: self.model(x)[0]['label'])
+        return data
+    
     def fit(self, data):
-        self.labels = []
-        for sub_data in tqdm(np.array_split(data, BATCH_SIZE)):
-            if len(sub_data) == 0:
-                break
-            sub_data = sub_data.tolist()
-            self.labels.extend([e['label'] for e in self.model(sub_data)])
-        self.labels = np.array(self.labels)
+        list_result = []
+        batchs = np.array_split(data, max(1, len(data)//BERT_BATCH_SIZE))
 
-    def match_filter(self, in_sentence, idx_list):
+        with ProcessPoolExecutor(self.n_workers) as e:
+            fs = [e.submit(self.predict_sentiment, sub_data)
+                  for sub_data in batchs]
+
+            for f in tqdm(as_completed(fs), total=len(fs), desc='Processing'):
+                if f._exception:
+                    print(f._exception)
+                assert f._exception is None
+                list_result.append(f._result)
+        self.labels = pd.concat(list_result)
+
+    def match_filter(self, in_sentence, idx_list) -> pd.DataFrame:
         """ Take the input sentence and return the dataset idx
         that matches with the input sentence sentiment."""
+        if self.model is not None:
         # Retrieve the label of the input sentence
-        sentiment = self.predict(in_sentence)[0]['label']
-        labels_idx = self.labels[idx_list]
-        mask = np.argwhere(labels_idx == sentiment).flatten()
-        filtered = np.array(idx_list)[mask]
-        return filtered, sentiment
+            sentiment = self.predict(in_sentence)[0]['label'] # -> 'POSITIVE' or 'NEGATIVE'
+            labels_idx = self.labels.iloc[idx_list]
+            filtered = labels_idx.loc[labels_idx.sentiment==sentiment]
+        else:
+            filtered = self.labels.iloc[idx_list]
+        return filtered
 
     def predict(self, in_sentence):
         if in_sentence.__class__.__name__ == 'str':
@@ -52,20 +68,19 @@ class SentimentCls():
 
     def save(self):
         os.makedirs(os.path.dirname(self.label_path), exist_ok=True)
-        with open(self.label_path, 'wb') as fw:
-            pickle.dump(self.labels, fw)
+        self.labels.to_csv(self.label_path, index=False)
 
 
 if __name__ == '__main__':
     import sys
-    sys.path.insert(0, '/home/bettyld/PJ/Documents/NLP_PJ/nlp_recommend')
+    sys.path.insert(0, '/Users/10972/Documents/NLP_PJ/nlp_recommend/nlp_recommend')
     from nlp_recommend import LoadData
-
-    corpus = LoadData(dataset='philosophy', n_max=50,
-                      random=False, remove_numbered_rows=True)
-    corpus.load()
-    df = corpus.corpus
-    cls = SentimentCls(dataset='philosophy', data=df.sentence.values)
+    dataset='adventure'
+    corpus = LoadData(dataset=dataset, # n_max=50,
+                      random=False, remove_numbered_rows=True, cache=True)
+    df = corpus.corpus_df
+    # cls = SentimentCls(dataset=dataset, data=df, weight_dir=WEIGHT_DIR)
+    cls = SentimentCls(dataset='philosophy', weight_dir=WEIGHT_DIR)
     index = [3, 4]
     filter_index = cls.match_filter('This is a trial', index)
-    print(df.iloc[filter_index])
+    # print(df.iloc[filter_index])

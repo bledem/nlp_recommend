@@ -14,7 +14,9 @@ from nlp_recommend.const import WEIGHT_DIR
 
 def arg_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data_path", type=str, default=WEIGHT_DIR)
+    parser.add_argument("--data-path", type=str, default=WEIGHT_DIR)
+    parser.add_argument("--port", type=int, default=5000)
+    parser.add_argument("--host", type=str, default='0.0.0.0')
     args = parser.parse_args()
     return args
 
@@ -103,8 +105,8 @@ if __name__ == '__main__':
     model_philo = ContainerSpacy('philosophy', weight_dir=weight_dir)
     model_psycho = ContainerSpacy('psychology', weight_dir=weight_dir)
     model_adv = ContainerSpacy('adventure', weight_dir=weight_dir)
-    host = "0.0.0.0"
-    port = 5000
+    host = args.host
+    port = args.port
     print(f'---> Go into your browser at http://{host}:{port} <---')
     app = create_app()
     app.run(host=host, port=port)

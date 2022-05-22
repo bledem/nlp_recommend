@@ -1,4 +1,4 @@
-from transformers.utils import logging
+import logging
 from nlp_recommend.const import WEIGHT_DIR
 
 import pandas as pd

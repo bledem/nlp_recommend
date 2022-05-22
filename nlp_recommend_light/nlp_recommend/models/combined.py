@@ -9,7 +9,7 @@ from transformers.utils import logging
 from nlp_recommend.models import BertModel, TfIdfModel, Word2VecModel, SpacyModel
 from sklearn.metrics.pairwise import cosine_similarity
 from nlp_recommend.settings import TOPK
-from nlp_recommend.const import WEIGHT_DIR
+from nlp_recommend.const import ORG_TXT_DIR, WEIGHT_DIR
 
 import logging
 import numpy as np
