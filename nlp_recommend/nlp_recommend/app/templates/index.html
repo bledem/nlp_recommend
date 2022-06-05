@@ -89,11 +89,11 @@
 
 
     <div class="form-label">
-        <p class="category" > I suggest you read</p>
+        <p class="category" > Related books</p>
         <ul>
             
                 {% if adv_preds['recommended_title'] %}
-                <li>  {{ adv_preds['recommended_title']['title'] }} 
+                <li> <em> {{ adv_preds['recommended_title']['title'] }} </em>
                 by 
                 {{ adv_preds['recommended_title']['author'] }}
                 {% else %}
@@ -101,16 +101,16 @@
             </li>
        
             {% if philo_preds['recommended_title'] %}
-            <li> 
-            {{ philo_preds['recommended_title']['title'] }} 
+            <li> <em> 
+            {{ philo_preds['recommended_title']['title'] }} </em> 
             by 
             {{ philo_preds['recommended_title']['author'] }}
             {% else %}
             {% endif %} 
         </li>
         {% if psycho_preds['recommended_title'] %}
-        <li> 
-        {{ psycho_preds['recommended_title']['title'] }} 
+        <li> <em> 
+        {{ psycho_preds['recommended_title']['title'] }} </em> 
         by 
         {{ psycho_preds['recommended_title']['author'] }}
         {% else %}
@@ -136,18 +136,18 @@
            {% endif %}
        </div>
 
-        <div class="answer-context" >
+        <span class="answer-context" >
             {% if adv_preds['quote'] %}
             {{ adv_preds['before'] }}
-           <div class='quote'>  {{ adv_preds['quote'] }} </div>
+           <span class='quote'>  {{ adv_preds['quote'] }} </span>
             {{ adv_preds['after'] }}
             {% endif %}
-        </div>
-        <div class='title'> 
+        </span>
+        <span class='title'> 
             {% if adv_preds['title'] %}
             {{ adv_preds['title'] }},   {{ adv_preds['author'] }}
             {% endif %}
-        </div>
+        </span>
     </section> 
 
 
@@ -166,19 +166,19 @@
             {% endif %}
         </div>
 
-        <div class="answer-context" >
+        <span class="answer-context" >
             {% if philo_preds['quote'] %}
             {{ philo_preds['before'] }}
-            <div class='quote'>  {{ philo_preds['quote'] }} </div>
+            <span class='quote'>  {{ philo_preds['quote'] }} </span>
             {{ philo_preds['after'] }}
 
             {% endif %}
-        </div>
-        <div class='title'> 
+        </span>
+        <span class='title'> 
             {% if philo_preds['title'] %}
             {{ philo_preds['title'] }}, {{ philo_preds['author'] }}
             {% endif %}
-        </div>
+        </span>
 
     </section> 
     
@@ -196,18 +196,18 @@
                 {% endif %}
             </div>
 
-             <div class="answer-context" >
+             <span class="answer-context" >
                  {% if psycho_preds['quote'] %}
                  {{ psycho_preds['before'] }}
-                <div class='quote'>  {{ psycho_preds['quote'] }} </div>
+                <span class='quote'>  {{ psycho_preds['quote'] }} </span>
                  {{ psycho_preds['after'] }}
                  {% endif %}
-             </div>
-             <div class='title'> 
+             </span>
+             <span class='title'> 
                  {% if psycho_preds['title'] %}
                  {{ psycho_preds['title'] }},  {{ psycho_preds['author'] }}
                  {% endif %}
-             </div>
+             </span>
          </section> 
     
          {% endif %}

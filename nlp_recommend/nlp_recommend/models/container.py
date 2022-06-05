@@ -1,9 +1,9 @@
 
-from nlp_recommend.models import BertModel, SpacyModel, SentimentCls, Warper
+from nlp_recommend.models import SpacyModel, SentimentCls, Warper
 from nlp_recommend.const import WEIGHT_DIR
 
 class ContainerBase():
-    def __init__(self, dataset, weight_dir=WEIGHT_DIR, sent_model= None):
+    def __init__(self, dataset, weight_dir=WEIGHT_DIR, sent_model= None, offset=3):
         """ContainerBase
         Args:
             dataset (str): name of the dataset genre (psychology, adventure, etc)
@@ -12,17 +12,17 @@ class ContainerBase():
         """
         self.weight_dir = weight_dir
         self.cls = SentimentCls(dataset=dataset, weight_dir=weight_dir, model=sent_model)
-        self.warper = Warper(dataset=dataset, dataset_path=weight_dir)
+        self.warper = Warper(dataset=dataset, dataset_path=weight_dir, offset=offset)
         
 # class Container(ContainerBase):
 #     def __init__(self, dataset, weight_dir, sent_model):
 #         super().__init__(dataset, weight_dir, sent_model)
 #         self.model = CombinedModel(dataset=dataset, weight_dir=weight_dir)
         
-class ContainerLight(ContainerBase):
-    def __init__(self, dataset, weight_dir=WEIGHT_DIR, sent_model=None):
-        super().__init__(dataset, weight_dir, sent_model)
-        self.model = BertModel(dataset=dataset, weight_dir=weight_dir)
+# class ContainerLight(ContainerBase):
+#     def __init__(self, dataset, weight_dir=WEIGHT_DIR, sent_model=None):
+#         super().__init__(dataset, weight_dir, sent_model)
+#         self.model = BertModel(dataset=dataset, weight_dir=weight_dir)
 
 # class ContainerVeryLight(ContainerBase):
 #     def __init__(self, dataset, weight_dir=WEIGHT_DIR, sent_model=None):
@@ -30,7 +30,7 @@ class ContainerLight(ContainerBase):
 #         self.model = TfIdfModel(dataset=dataset, weight_dir=weight_dir)
 
 class ContainerSpacy(ContainerBase):
-    def __init__(self, dataset, weight_dir=WEIGHT_DIR, sent_model=None):
-        super().__init__(dataset, weight_dir, sent_model)
+    def __init__(self, dataset, weight_dir=WEIGHT_DIR, sent_model=None, offset=3):
+        super().__init__(dataset, weight_dir, sent_model, offset=offset)
         self.model = SpacyModel(dataset=dataset, weight_dir=weight_dir)
        

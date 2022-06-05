@@ -1,23 +1,26 @@
 # Litterature recommendation system
 
 ## Getting started (with docker)
-```
-## Getting started (with docker)
-```
-# download models and data folder
-# copy this folder on your computer as <path_to_weights_folder>
-# it contains a dataset and a weight folder. 
+
+- download models and data folder
+- copy this folder on your computer as <path_to_weights_folder>
+it contains a dataset and a weight folder.
+``` 
 wget https://drive.google.com/drive/folders/1qsQ-QNN4gD_JoI2q4Q0Ew68LzKNdJyRH?usp=sharing
-docker build -t nlp_recommend_auto .
+
+docker build -t nlp_recommend_light .
+
 docker run -v <path_to_weights_folder>:/training/ -p 5000:5000 nlp_recommend_auto
 ```
+Or you can use the makefile after changing the `WEIGHT_DIR` path.
 
-Debug:
+#### Debug:
 ```
 docker run -it -v <path_to_weights_folder>:/training -p 5000:5000 -e FLASK_APP="nlp_recommend/app/webapp_light" nlp_recommend_auto bash
 ```
 
-<--BELOW TO UPDATE -->
+
+# <--BELOW TO UPDATE -->
 
 ## Getting started (without docker) 
 ### 1. Set up your environment

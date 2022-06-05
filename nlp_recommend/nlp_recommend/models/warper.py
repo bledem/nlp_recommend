@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class Warper:
-    def __init__(self, dataset, offset=2, dataset_path=WEIGHT_DIR):
+    def __init__(self, dataset, offset=3, dataset_path=WEIGHT_DIR):
         """
         Find the sentence before and after one sentence is the corpus.
         Args:
@@ -29,7 +29,7 @@ class Warper:
         result = self.corpus[self.corpus.valid].iloc[best_valid_index] # -> df( topk rows x 9 columns )
         # top 1 title and sentence
         # title, sentence = result.title.values[0], result.sentence.values[0]
-        wrapped_sentence = self.warp(result, offset=2)
+        wrapped_sentence = self.warp(result, offset=self.offset)
         if return_index:
             result = best_valid_index
         return result, wrapped_sentence

@@ -70,6 +70,12 @@ body {
   border-bottom-right-radius: 40% 20%;
 }
 
+/* #title {
+  font-style: italic;
+  text-indent: 0 ;
+  text-align: left;
+} */
+
 #showcase h1 {
   color: #ffffff;
   font-size: 40px;
@@ -101,8 +107,8 @@ body {
 }
 
 #form {
-  text-align: left;
-  width: 50%;
+  text-align: center;
+  width: 90%;
 }
 
 #history {
@@ -237,7 +243,7 @@ button:not(:disabled),
   display: block;
   block-size: auto;
   height: 5em;
-  text-align: left;
+  text-align: center;
   width: 80%;
   padding: 0.55rem 0.75rem;
   font-size: 1rem;
@@ -258,7 +264,7 @@ button:not(:disabled),
   display: block;
   text-align: left;
   overflow: hidden;
-  width: 50%;
+  width: 80%;
   padding: 0.55rem 0.75rem;
   font-size: 1rem;
   font-weight: 400;
@@ -345,7 +351,7 @@ button:not(:disabled),
 
 .empty-margin {
   height: 70px;
-  width: 50%;
+  width: 80%;
 }
 
 .result {
@@ -404,7 +410,7 @@ button:not(:disabled),
 .title{
   font-style: italic;
   text-align: right;
-  margin-top:0;
+  white-space: pre-line;
 
 }
 .author {

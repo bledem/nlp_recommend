@@ -1,9 +1,9 @@
 
 IMAGE_NAME=nlp_recommend
-TAG_NAME=testtag
+TAG_NAME=test_tag
 CONTAINER_NAME=nlp_recommend_app
 
-WEIGHT_DIR=/Users/10972/Documents/NLP_PJ
+WEIGHT_DIR=/Users/10972/Documents/NLP_PJ/training
 APP_PATH=nlp_recommend/app
 FLASK_APP=$(APP_PATH)/webapp_light.py
 
@@ -14,13 +14,14 @@ docker-build:
 	docker build -t $(IMAGE_NAME):$(TAG_NAME) .
 
 docker-run-bash-debug:
-	docker run --rm -it -v $(WEIGHT_DIR)/training:/app/training -p 5000:5000 --name=$(CONTAINER_NAME) $(IMAGE_NAME):$(TAG_NAME) /bin/bash
-# docker run --env-file $(ENV_FILE) -it -v $(DATA_FOLDER):/data -v $(CONTAINER_NAME):$(TAG_NAME) /bin/bash
+	docker run --rm -it -v $(PWD):/app/nlp_recommend -v $(WEIGHT_DIR):/app/training -p 5000:5000 --name=$(CONTAINER_NAME) $(IMAGE_NAME):$(TAG_NAME) /bin/bash
+# 	run inside the container:
+# 	python nlp_recommend/app/webapp_light.py --data-path=/app/training --port 5001
+
 
 docker-run-auto:
-	docker run --rm -it -v $(WEIGHT_DIR)/training:/app/training -p 5000:5000 --name=$(CONTAINER_NAME) --env FLASK_APP=$(FLASK_APP) $(IMAGE_NAME):$(TAG_NAME) 
-# python app/webapp_light.py
-# docker run -p 5000:5000 --env FLASK_APP=$(FLASK_APP) $(CONTAINER_NAME):$(TAG_NAME)
+	docker run --rm -it -v $(PWD):/app/nlp_recommend -v ${WEIGHT_DIR}:/app/training -p 5000:5000 --name=$(CONTAINER_NAME) $(IMAGE_NAME):$(TAG_NAME) \
+	python nlp_recommend/app/webapp_light.py --data-path=/app/training --port 5000
 
 docker-run-auto-light:
 	docker run -p 5001:5001 $(CONTAINER_NAME):$(TAG_NAME)

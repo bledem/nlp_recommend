@@ -2,6 +2,11 @@ from flask import Flask, request, render_template
 import argparse
 import sys
 import os
+import re
+import logging
+
+## config
+OFFSET = 3
 
 CUR_DIR = os.path.dirname(__file__)
 PARENT_DIR = os.path.dirname(os.path.dirname(CUR_DIR))
@@ -10,7 +15,8 @@ sys.path.insert(0, PARENT_DIR)
 from nlp_recommend.utils.utils import rerank
 from nlp_recommend.models import ContainerSpacy
 from nlp_recommend.const import WEIGHT_DIR
-
+logger = logging.getLogger(__name__)
+logger.setLevel('DEBUG')
 
 def arg_parser():
     parser = argparse.ArgumentParser()
@@ -43,28 +49,55 @@ def create_app(config=None):
         return res
 
     def get_predictions(text, container, topk=5):
+        """_summary_
+
+        Args:
+            text (_type_): _description_
+            container (_type_): _description_
+            topk (int, optional): _description_. Defaults to 5.
+
+        Returns:
+            preds: List[dict['title':str, 'before':str, 'after':str, 'quote':str, 'author':str]]
+            title_preds: List[dict['title':str, 'author':str]]
+        """
         # quote pred
         best_valid_index, warped_dict = container.warper.predict(
             container.model, text, return_index=True, topk=topk)
         best_index = container.cls.match_filter(text, best_valid_index)
-        print('best_index', best_valid_index, 'to', best_index)
+        logger.debug('best_index', best_valid_index, 'to', best_index)
         result = container.warper.corpus.loc[best_index.org_idx, ['sentence', 'author', 'title']]
-        print('result', result)
+        logger.debug('result', result)
         filtered_idx = [i for i, elt in enumerate(best_valid_index) if elt in best_index.index]
         preds = filter_preds(filtered_idx, warped_dict)
         # title pred
         title_preds = {}
         if len(result)>0:
             title_preds['title'] = rerank(result['title'].values)[0]
-            print('debug title preds', title_preds)
+            logger.debug('debug title preds', title_preds)
             title_preds['author'] = result.loc[result.title == title_preds['title'],
                                             'author'].values[0]
         return preds, title_preds
 
     def clean_sentence(text):
-        text = text[0].upper() + text[1:]
+        # capitalize
+        match = re.search("[a-zA-Z]", text)
+        capitalized_list = list(text)
+        capitalized_list[match.start()] = capitalized_list[match.start()].upper() # capitalize
+        capitalized_text = ''.join(capitalized_list)
+       
+        # remove spurious spaces
+        regex_pattern = r"([!.?])"
+        split_text = re.split(regex_pattern, capitalized_text)
+        split_list = [e.rstrip() for e in split_text]
+        split_list = [' '+e if e[0] != ' ' and len(e)>2 else e for e in split_list]
+        capitalized_text = ''.join(split_list)
+        return capitalized_text
+        
+    def add_punctuation(text):
+        # add punctuation
         if text[-1] != '.':
             text += '.'
+        logger.debug('capitalized_text', text)
         return text
 
     @app.route('/', methods=['POST'])
@@ -82,9 +115,11 @@ def create_app(config=None):
         for name, model in models.items():
             preds_raw, title_preds = get_predictions(text, model)
             preds[name] = {key: clean_sentence(elt) for key, elt in preds_raw[0].items() if elt}
-            print('title_preds', title_preds)
+            preds[name] = {key: add_punctuation(elt) if key != 'title' else elt for key, elt in preds[name].items()}
+            logger.info('title_preds', title_preds)
             preds[name]['recommended_title'] = title_preds
 
+            
         ans = 'Something Like'
 
         return render_template('index.html', ans=ans, input=text, 
@@ -102,11 +137,11 @@ if __name__ == '__main__':
     global model_adv
     weight_dir = args.data_path
 
-    model_philo = ContainerSpacy('philosophy', weight_dir=weight_dir)
-    model_psycho = ContainerSpacy('psychology', weight_dir=weight_dir)
-    model_adv = ContainerSpacy('adventure', weight_dir=weight_dir)
+    model_philo = ContainerSpacy('philosophy', weight_dir=weight_dir, offset=OFFSET)
+    model_psycho = ContainerSpacy('psychology', weight_dir=weight_dir, offset=OFFSET)
+    model_adv = ContainerSpacy('adventure', weight_dir=weight_dir, offset=OFFSET)
     host = args.host
     port = args.port
     print(f'---> Go into your browser at http://{host}:{port} <---')
     app = create_app()
-    app.run(host=host, port=port)
+    app.run(host=host, port=port, debug=True)
